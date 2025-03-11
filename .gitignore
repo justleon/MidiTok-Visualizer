@@ -1,6 +1,8 @@
 # Ignore general configuration files
 .idea/
 .vscode/
+.venv
+localtest
 .DS_Store
 Thumbs.db
 .pytest_cache/
