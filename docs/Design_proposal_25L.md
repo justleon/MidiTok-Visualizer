@@ -1,4 +1,4 @@
-# WIMU 25Z
+# WIMU 25L
 Do ewentualnego przetłumaczenia na ang:
 
 ## Funkcje
