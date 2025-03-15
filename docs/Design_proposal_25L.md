@@ -19,7 +19,7 @@ Do ewentualnego przetłumaczenia na ang:
 
 * Trzymanie w pamięci przegladarki załadowanych plików itp a nie za każdym razem ich ładowanie - o ile to nie wynika z ustawień dockera itp
 
-* (opcja) Dodanie nowego tokenizera - program korzysta w pełni z biblioteki miditok i pobrał juz  wszystkie dostępne tokenizery
+
 
 
 
