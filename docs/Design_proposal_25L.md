@@ -1,32 +1,31 @@
 # WIMU 25L
-Do ewentualnego przetłumaczenia na ang:
 
-## Funkcje
+## Funkcje oraz komentarze opisujący aktulany stan
 
-* Poprawa błędów kodu i obsługa wyjątków - podczas wstępnych testów napotkano na problemy związane z tokenizacją plików MIDI. Dla example_files wszystko działa ale plik z internetu spowodował problem z jego rozpakowaniem. Dlatego chcemy wprowadzić obsługę błędów (dla przykładu podstawa czyli odczyt i zapis pliku), jak również tych wymagajacych restrukturyzację funkcji. 
+* Poprawa błędów kodu i obsługa wyjątków - podczas wstępnych testów napotkano na problemy związane z tokenizacją plików MIDI. Dla example_files wszystko działa, ale losowy plik z internetu spowodował problem z jego rozpakowaniem. Dlatego chcemy wprowadzić obsługę błędów (pierwsze co się rzuca w oczy: odczyt i zapis pliku), jak również tych wymagajacych restrukturyzację funkcji. 
 
-* Restrukturyzacja backendu - wprowadzanie zasad dobrego programowania obiektowego, zasad SOLID.
+* Restrukturyzacja backendu - wprowadzanie zasad dobrego programowania obiektowego w tym zasady SOLID z powodu co raz to bardziej rozbudowanych funkcji.
 
 * Dodanie do frontedu dynamicznego odtwarzania dźwięku wraz z piano rollem.
 
-* Dodanie dokumentacji - według grupy majacej ostatnio ten projekt, jest on bardzo nieuporządkowany oraz brakuje w nim komentarzy. Dlatego też chcielibyśmy popracować nad dokumentacją, która pozwalałaby lepiej rozwijać projekt. 
+* Dodanie dokumentacji - według grupy majacej ostatnio ten projekt, kod jest bardzo nieuporządkowany oraz brakuje w nim komentarzy, dlatego też chcielibyśmy popracować nad dokumentacją, która pozwalałaby lepiej rozwijać projekt. 
 
-* Dodanie CICD - Chcielibysmy również stworzyć środowisko na bazie GitHub Actions umożliwiających automatyzację i usprawnienie procesów rozwoju, testowania oraz wdrażania aplikacji, a także integrację z generowaniem dokumentacji MkDocs.
+* Dodanie CICD - środowisko na bazie GitHub Actions umożliwiających automatyzację i usprawnienie procesów rozwoju, testowania oraz wdrażania aplikacji, a także integrację z generowaniem dokumentacji MkDocs.
 
 * Edycja MIDI na stronie i jego zapis - dodanie zakładki umożliwiającej edycję pliku MIDI z ewentualną obsługą przez bibliotekę Mido urządzeń wysyłających komunikaty MIDI. 
 
 * Dodanie testów jednostkowych, integracyjnych i wydajnościowych.
 
-* Uporządkowanie konfiguracji tokenizerów poprzez pliki JSON.
+* Uporządkowanie konfiguracji tokenizerów poprzez pliki JSON z ewentualną automatyzacją po stronie odczytu informacji po prostu z pliku MIDI. 
 
-* Trzymanie w pamięci przeglądarki załadowanych plików aby nie trzeba było za każdym razem ich ładować.
+* Trzymanie w pamięci przeglądarki załadowanych plików, aby nie trzeba było za każdym razem ich ładować / dodanie zakładki z załadowanymi już przykładami MIDI.
 
 ## Harmonogram projektu
 
-* **Tydzień 1 (17.03 - 21.03):**    Przygotowanie środowiska do pracy nad projektem oraz zapoznanie się z narzędziami
+* **Tydzień 1 (17.03 - 21.03):**    Przygotowanie środowiska do pracy nad projektem, zapoznanie się z narzędziami, poprawki design proposal
 * **Tydzień 2 (24.03 - 28.03):**    Początek pracy nad restrukturyzacją backendu oraz dokumentacją
 * **Tydzień 3 (31.03 - 04.04):**    Dalsze prace nad restrukturyzacją backendu oraz dokumentacją
-* **Tydzień 4 (07.04 - 11.04):**    Ustawienie CICD
+* **Tydzień 4 (07.04 - 11.04):**    Ustawienie CICD oraz końcowe prace nad integracją kodu. 
 * **Tydzień 5 (14.04 - 18.04):**    Początek pracy nad edycją MIDI
 * **Tydzień 6 (21.04 - 25.04):**   Dalsza praca nad edycją MIDI
 * **Tydzień 7 (28.04 - 02.05):**    *Majówka*
@@ -35,6 +34,7 @@ Do ewentualnego przetłumaczenia na ang:
 * **Tydzień 10 (19.05 - 23.05):**   Stworzenie testów jednostkowych, integracyjnych i wydajnościowych
 * **Tydzień 11 (26.05 - 30.05):**   Oddanie projektu
 
+W każdym z tych etapów, na bieżąco będzie aktualizowana dokumentacja projektu. Podkreśla się jednak, że harmonogram może ulec zmianie, ze względa na wystąpienie ewentualnych problemów. 
 ## Planowany stack technologiczny
 Stack jez zależny od możliwości integracji aktualnej wersji projektu z nowymi narzędziami:
 
