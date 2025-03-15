@@ -1,38 +1,52 @@
-## WIMU 25Z
+# WIMU 25Z
 Do ewentualnego przetłumaczenia na ang:
 
-# Funkcje
+## Funkcje
 
-* Poprawa błędów kodu i obsługa wyjątków - już podczas pierwszych testów napotkano na problemu związane z tokenizacją plików midi. Dla example_files wszystko fajnie działa ale losowy plik z internetu spowodował problem z jego rozpakowaniem. Tym samym chcemy wprowadzić obsługe błędów( dla przykładu podstawa czyli odczyt i zapis pliku), jak również tych wymagajacych restrukturyzacje funkcji. 
+* Poprawa błędów kodu i obsługa wyjątków - podczas wstępnych testów napotkano na problemy związane z tokenizacją plików MIDI. Dla example_files wszystko działa ale plik z internetu spowodował problem z jego rozpakowaniem. Dlatego chcemy wprowadzić obsługę błędów (dla przykładu podstawa czyli odczyt i zapis pliku), jak również tych wymagajacych restrukturyzację funkcji. 
 
-* Restrukturyzacja backendu- widać ze backend był pisany przez studentów, gdyż nie spełnia on żadnych zasad dobrego programowania obiektowego, tym bardziej zasad SOLID, przez co jedna funkcja ma po 150 linijek z x ifami.
+* Restrukturyzacja backendu - wprowadzanie zasad dobrego programowania obiektowego, zasad SOLID.
 
-* Dodanie do frontedu dynamicznego odtwarzania dźwięku wraz z piano rollem
+* Dodanie do frontedu dynamicznego odtwarzania dźwięku wraz z piano rollem.
 
-* Ogarnięcie dokumentacji wraz z CICD - według grupy majacej ostatnio ten projekt, jest on bardzo nie uporzadkowany oraz brakuje komentarzy co i jak. Dlatego też chcielibyśmy pochylić się nad dokumentacją, która pozwalałaby lepiej rozwijać projekt. Chcielibysmy również stworzyć środowisko na bazie github actions umożliwiających automatyzację i usprawnienie procesów rozwoju, testowania oraz wdrażania aplikacji, a także integrację z generowaniem dokumentacji MkDocs.
+* Dodanie dokumentacji - według grupy majacej ostatnio ten projekt, jest on bardzo nieuporządkowany oraz brakuje w nim komentarzy. Dlatego też chcielibyśmy popracować nad dokumentacją, która pozwalałaby lepiej rozwijać projekt. 
 
-* Edycja midi na stronie i jego zapis- dodanie zakładki umożliwiającej edycje pliku midi z ewentualna obsługa przez biblioteke mido urzadzen wysyłających komunikaty midi. 
+* Dodanie CICD - Chcielibysmy również stworzyć środowisko na bazie GitHub Actions umożliwiających automatyzację i usprawnienie procesów rozwoju, testowania oraz wdrażania aplikacji, a także integrację z generowaniem dokumentacji MkDocs.
 
-* Dodanie testów jednostkowych, integracyjnych i wydajnościowych
+* Edycja MIDI na stronie i jego zapis - dodanie zakładki umożliwiającej edycję pliku MIDI z ewentualną obsługą przez bibliotekę Mido urządzeń wysyłających komunikaty MIDI. 
 
-* Ogarnięcie do porządku konfiguracje tokenizerów( json)
+* Dodanie testów jednostkowych, integracyjnych i wydajnościowych.
 
-* Trzymanie w pamięci przegladarki załadowanych plików itp a nie za każdym razem ich ładowanie - o ile to nie wynika z ustawień dockera itp
+* Uporządkowanie konfiguracji tokenizerów poprzez pliki JSON.
 
+* Trzymanie w pamięci przeglądarki załadowanych plików aby nie trzeba było za każdym razem ich ładować.
 
+## Harmonogram projektu
 
+* **Tydzień 1 (17.03 - 21.03):**    Przygotowanie środowiska do pracy nad projektem oraz zapoznanie się z narzędziami
+* **Tydzień 2 (24.03 - 28.03):**    Początek pracy nad restrukturyzacją backendu oraz dokumentacją
+* **Tydzień 3 (31.03 - 04.04):**    Dalsze prace nad restrukturyzacją backendu oraz dokumentacją
+* **Tydzień 4 (07.04 - 11.04):**    Ustawienie CICD
+* **Tydzień 5 (14.04 - 18.04):**    Początek pracy nad edycją MIDI
+* **Tydzień 6 (21.04 - 25.04):**   Dalsza praca nad edycją MIDI
+* **Tydzień 7 (28.04 - 02.05):**    *Majówka*
+* **Tydzień 8 (05.05 - 09.05):**    Dodanie dynamicznego odtwarzania dźwięku i piano rolla
+* **Tydzień 9 (12.05 - 16.05):**    Praca nad trzymaniem w pamięci przeglądarki załadowanych plików
+* **Tydzień 10 (19.05 - 23.05):**   Stworzenie testów jednostkowych, integracyjnych i wydajnościowych
+* **Tydzień 11 (26.05 - 30.05):**   Oddanie projektu
 
+## Planowany stack technologiczny
+Stack jez zależny od możliwości integracji aktualnej wersji projektu z nowymi narzędziami:
 
-# Harmonogram projektu
-Rozdzielić to na tygodnie
+* **Repozytorium:** GitHub
+* **Testy:** pytest, pytest-mock, pytest-benchamrk
+* **Backend:** Python, FastAPI
+* **Frontend:** React
+* **Dokumentacja:** MkDocs material + plugin mkdocstrings
+* **CICD:** GitHub Actions
 
-# Planowany stack technologiczny
-Stack jez zależny od możliwości integracji aktualnej wersji projektu z nowymi narzedziami:
+## Bibliografia
 
-* Repozytorium: Github
-* Testy: pytest, pytest-mock, pytest-benchamrk
-* Backend: Python, FastAPI
-* Frontend: React
-* Dokumentacja: MkDocs material + plugin mkdocstrings
-* CICD: github actions
-
+* MidiTok documentation ([https://miditok.readthedocs.io/en/stable/](https://miditok.readthedocs.io/en/stable/)) 
+* GitHub Actions  documentation ([https://docs.github.com/en/actions](https://docs.github.com/en/actions))
+* MkDocs documentation ([https://www.mkdocs.org/](https://www.mkdocs.org/))
