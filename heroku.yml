@@ -5,4 +5,4 @@ build:
 
 run:
   web: python -m core.main
-  frontend: sh -c "cd frontend && serve -s build -l $PORT"
+  frontend: serve -s /app/frontend/build -l $PORT
