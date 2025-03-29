@@ -12,5 +12,7 @@ RUN npm run build
 
 RUN npm install -g serve
 EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "$PORT"]
+ENV PORT 3000
+
+CMD ["serve", "-s", "build", "-l", "0.0.0.0:$PORT"]
 #CMD ["npm", "run", "dev"]
