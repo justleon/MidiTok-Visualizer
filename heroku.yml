@@ -1,7 +1,7 @@
 build:
   docker:
-    web: ./backend/Dockerfile
-    frontend: ./railway/frontend/Dockerfile
+    web: ./railway/backend/Dockerfile
+    frontend: ./frontend/Dockerfile
 
 run:
   web: ./start.sh
