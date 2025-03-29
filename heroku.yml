@@ -1,8 +1,4 @@
 build:
   docker:
-    web:
-      dockerfile: railway/backend/Dockerfile
-      context: ../../
-    frontend:
-      dockerfile: frontend/Dockerfile
-      context: frontend/
+    web: backend/Dockerfile
+    frontend: frontend/Dockerfile
