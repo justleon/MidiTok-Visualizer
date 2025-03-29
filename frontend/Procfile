@@ -1,1 +1,2 @@
 web: serve -s build -l $PORT
+frontend: serve -s build -l $PORT
