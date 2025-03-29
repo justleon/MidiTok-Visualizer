@@ -2,3 +2,7 @@ build:
   docker:
     web: backend/Dockerfile
     frontend: frontend/Dockerfile
+
+run:
+  web: python -m core.main
+  frontend: sh -c "cd frontend && serve -s build -l $PORT"
