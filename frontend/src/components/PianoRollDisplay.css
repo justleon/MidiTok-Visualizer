@@ -1,0 +1,59 @@
+.piano-roll-container {
+    position: relative;
+    max-width: 100%;
+  }
+  
+  .piano-roll-scrollable {
+    display: flex;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  
+  .piano-roll-key-column {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    border-right: 2px solid black;
+  }
+  
+  .piano-roll-key {
+    position: absolute;
+    border: 2px solid black;
+    border-radius: 5px 0 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  
+  .piano-roll-key.white {
+    background-color: white;
+    color: black;
+  }
+  
+  .piano-roll-key.black {
+    background-color: #0f0f26;
+    color: white;
+  }
+  
+  .piano-roll-canvas {
+    background-color: #f8f8f8;
+  }
+  
+  .piano-roll-bottom-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 20px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: white;
+  }
+  
+  .piano-roll-bottom-scroll-placeholder {
+    height: 1px;
+  }
+  

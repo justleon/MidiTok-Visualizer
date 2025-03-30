@@ -161,4 +161,3 @@ We use:
 - Kacper Stefański
 - Konstantin Panov
 - Piotr Malesa
-

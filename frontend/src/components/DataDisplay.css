@@ -1,0 +1,68 @@
+.data-display {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .data-display-content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .token-info {
+    flex: 1;
+  }
+  
+  .token-container {
+    flex: 3;
+    position: relative;
+    overflow-y: auto;
+  }
+  
+  .token-column {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+  }
+  
+  .token-row {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 0.5px;
+  }
+  
+  .pagination-bar {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    z-index: 10;
+  }
+  
+  .pagination-bar-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .pagination-button {
+    margin: 0 10px;
+  }
+  
+  .pagination-button:first-child {
+    margin-right: 10px;
+  }
+  
+  .pagination-button:last-child {
+    margin-left: 10px;
+  }
+
+  .toggle {
+    margin-bottom: 2px;
+  }
+  

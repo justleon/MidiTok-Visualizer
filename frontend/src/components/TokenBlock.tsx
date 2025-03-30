@@ -1,71 +1,89 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Token } from '../interfaces/ApiResponse';
+import './TokenBlock.css';
 
 interface TokenBlockProps {
   item: Token;
+  showTokenType: boolean; 
   onHover: (t: Token | null, heading: string) => void;
   onSelect: (t: Token | null) => void;
-  heading: string; // Add heading as a prop
+  heading: string;
   highlight: boolean | null;
   selected: boolean | null;
 }
 
-export function TokenTypeToColor(type: string) {
+export function TokenTypeToColor(type: string): string {
   switch (type) {
-    case 'Bar': return '#67948b';
-    case 'Position':
-    case 'TimeShift': return '#748a9a';
-    case 'Tempo':
-    case 'Rest': return '#87673e';
-    case 'Pitch':
-    case 'NoteOn': return '#778b68';
-    case 'Velocity': return '#cc968e';
-    case 'Duration':
-    case 'NoteOff': return '#4c4732';
-    case 'Family':
-    case 'TimeSig': return '#b076b2';
-    default: return '#000000'
+    case 'Bar': return 'lightcyan';
+    case 'Position': return 'lavender';
+    case 'TimeShift': return 'lightgreen';
+    case 'Tempo': return 'lightpink';
+    case 'Rest': return 'palegreen';
+    case 'Pitch': return 'lightblue';
+    case 'NoteOn': return 'peachpuff';
+    case 'Velocity': return 'lightcoral';
+    case 'Duration': return 'lightgoldenrodyellow';
+    case 'NoteOff': return 'khaki';
+    case 'Family': return 'lightgray';
+    case 'TimeSig': return 'thistle';
+    case 'MicroTiming': return 'plum';
+    case 'Program': return 'lightseagreen'; 
+    case 'Ignore': return 'white';
+    default: return 'white';
   }
 }
 
+const TokenBlock: React.FC<TokenBlockProps> = memo(
+  ({ item, onHover, onSelect, heading, highlight, selected, showTokenType }) => {
+    const [isHovered, setIsHovered] = useState(false);
 
-const TokenBlock: React.FC<TokenBlockProps> = memo(({ item, onHover, onSelect, heading, highlight, selected }) => {
-
-  const handleMouseEnter = () => {
+    const handleMouseEnter = () => {
+      setIsHovered(true);
       onHover(item, heading);
-  };
-  const handleMouseLeave = () => {
-    onHover(null, "");
-  };
-  const handleClick = () => {
-    if (item.note_id) {
-      onSelect(item);
-    }
-  };
+    };
 
-  return (
-    <div
-      style={{
-        display: 'inline-block',
-        width: '40px',
-        height: '60px',
-        border: '1px solid #ccc',
-        margin: '5px',
-        position: 'relative',
-        backgroundColor: highlight ? '#ebcc34' : selected ? '#de1818' : TokenTypeToColor(item.type),
-        color: highlight ? '#000000' : 'white'
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-    >
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-        <div style={{ fontSize: '8px' }}>
-          <strong>{item.type}</strong>
+    const handleMouseLeave = () => {
+      setIsHovered(false);
+      onHover(null, '');
+    };
+
+    const handleClick = () => {
+      if (item.note_id) {
+        onSelect(item);
+      }
+    };
+
+    const isHighlighted = selected || highlight || isHovered;
+
+    const dynamicStyles = {
+      backgroundColor: selected
+        ? 'red'
+        : highlight
+        ? 'yellow'
+        : TokenTypeToColor(item.type),
+    };
+
+    return (
+      <div
+        className={`
+          token-block
+          ${isHighlighted ? 'highlighted' : ''}
+          ${isHighlighted ? 'large' : ''}
+          ${selected ? 'selected' : ''}
+          ${highlight ? 'highlight' : ''}
+          ${showTokenType ? 'show-type' : ''}  // <-- klasa pokazująca typ
+        `}
+        style={dynamicStyles}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+      >
+        <div className="token-block-content">
+          <strong>{item.type === 'MicroTiming' ? 'Micro\nTiming' : item.type}</strong>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default TokenBlock;

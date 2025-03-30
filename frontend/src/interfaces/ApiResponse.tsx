@@ -5,6 +5,7 @@ interface Token {
   program: number;
   desc: string;
   note_id?: string | null;
+  track_id?: string | null;
 }
 
 interface Note {
@@ -13,6 +14,7 @@ interface Note {
 	start: number;
 	end: number;
 	velocity: number;
+  note_id: string;
 }
 
 interface MusicInfoData {

@@ -1,6 +1,7 @@
-from miditok import CPWord
+from miditok import MMM
 
 
-class CPWordTokenizer(CPWord):
+class MMMTokenizer(MMM):
+
     def __init__(self, config):
         super().__init__(config)

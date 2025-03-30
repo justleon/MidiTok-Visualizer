@@ -1,6 +1,5 @@
 import json
 import logging.config
-from typing import List
 
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -16,7 +15,12 @@ logging.config.dictConfig(log_config)
 
 app = FastAPI()
 
-origins = ["http://localhost:3000", "https://wimu-frontend-ccb0bbc023d3.herokuapp.com"]
+origins = [
+    "http://localhost:3000",
+    "https://wimu-frontend-ccb0bbc023d3.herokuapp.com",
+    "https://miditok-visualizer-production-frontend.up.railway.app",
+]
+
 
 app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
@@ -32,6 +36,11 @@ async def validation_exception_handler(request, exc):
     )
 
 
+def save_to_file(data, filename):  # debug function
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(str(data))
+
+
 @app.post("/process")
 async def process(config: ConfigModel = Body(...), file: UploadFile = File(...)) -> JSONResponse:
     try:
@@ -40,7 +49,13 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
         midi_bytes: bytes = await file.read()
         tokens, notes = tokenize_midi_file(config, midi_bytes)
         serialized_tokens = json.dumps(tokens, cls=TokSequenceEncoder)
-        serialized_notes = [[note.__dict__ for note in track_notes] for track_notes in notes]
+        note_id = 1
+        serialized_notes = []
+        for track_notes in notes:
+            serialized_track = [{**note.__dict__, "note_id": note_id + i} for i, note in enumerate(track_notes)]
+            serialized_notes.append(serialized_track)
+            note_id += len(track_notes)
+
         metrics: MusicInformationData = retrieve_information_from_midi(midi_bytes)
         return JSONResponse(
             content={
@@ -48,7 +63,7 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
                 "data": {
                     "tokens": json.loads(serialized_tokens),
                     "notes": serialized_notes,
-                    "metrics": json.loads(metrics.model_dump_json())
+                    "metrics": json.loads(metrics.model_dump_json()),
                 },
                 "error": None,
             }

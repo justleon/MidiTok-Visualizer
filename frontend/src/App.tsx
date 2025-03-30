@@ -6,7 +6,7 @@ import DataDisplay from './components/DataDisplay';
 import MusicInfoDisplay from './components/MusicInfoDisplay';
 import RangeSlider from './components/RangeSlider';
 import SingleValueSlider from './components/SingleValueSlider';
-import { ApiResponse, Token, Note } from './interfaces/ApiResponse';
+import { ApiResponse, Token, Note, NestedList } from './interfaces/ApiResponse';
 import ErrorBoundary from './components/ErrorBoundary';
 import PianoRollDisplay from './components/PianoRollDisplay';
 import FilePlayback from './components/FilePlayback';
@@ -16,14 +16,18 @@ import 'react-tabs/style/react-tabs.css';
 function App() {
   const [responses, setResponses] = useState<{ file: File, response: ApiResponse | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedTokenizer, setSelectedTokenizer] = useState<string>('REMI');
+  const [selectedTokenizer, setSelectedTokenizer] = useState<string>('PerTok');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPitchRange, setSelectedPitchRange] = useState<number[]>([21, 109]);
   const [selectedVelocityBins, setSelectedVelocityBins] = useState<number>(32);
+  const [selectedTicksPerQuarter, setTicksPerQuarter] = useState<number>(320);
+  const [selectedMaxMicrotimingShift, setMaxMicrotimingShift] = useState<number>(0.125);
+  const [selectedNumMicrotimingBins, setNumMicrotimingBins] = useState<number>(30);
   const [specialTokens, setSpecialTokens] = useState<string>("PAD, BOS, EOS, MASK");
   const [useChords, setUseChords] = useState<boolean>(true);
   const [useRests, setUseRests] = useState<boolean>(false);
   const [useTempos, setUseTempos] = useState<boolean>(true);
+  const [useMicrotiming, setUseMicrotiming] = useState<boolean>(true);
   const [useTimeSignatures, setUseTimeSignatures] = useState<boolean>(false);
   const [useSustainPedals, setUseSustainPedals] = useState<boolean>(false);
   const [usePitchBends, setUsePitchBends] = useState<boolean>(false);
@@ -67,6 +71,18 @@ function App() {
     setSelectedVelocityBins(newValue);
   };
 
+  const handleTicksPerQuarterChange = (newValue: number) => {
+    setTicksPerQuarter(newValue);
+  };
+
+  const handleMaxMicrotimingShiftChange = (newValue: number) => {
+    setMaxMicrotimingShift(newValue);
+  };
+
+  const handleNumMicrotimingBinsChange = (newValue: number) => {
+    setNumMicrotimingBins(newValue);
+  };
+
   const handleSpecialTokensChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpecialTokens(event.target.value);
   };
@@ -81,6 +97,10 @@ function App() {
 
   const handleUseTemposChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUseTempos(event.target.checked);
+  };
+
+  const handleUseMicrotiming = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseMicrotiming(event.target.checked);
   };
 
   const handleUseTimeSignaturesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +178,7 @@ function App() {
       const configData = {
         tokenizer: selectedTokenizer,
         pitch_range: selectedPitchRange,
-        nb_velocities: selectedVelocityBins,
+        num_velocities: selectedVelocityBins,
         special_tokens: specialTokens.split(",").map((token) => token.trim()),
         use_chords: useChords,
         use_rests: useRests,
@@ -176,9 +196,12 @@ function App() {
         pitch_bend_range: [...pitchBendRange, pitchBendRangeNumber],
         programs: usePrograms ? selectedPrograms : null,
         one_token_stream_for_programs: usePrograms ? oneTokenStreamForPrograms : null,
-        program_changes: usePrograms ? programChanges : null
+        program_changes: usePrograms ? programChanges : null,
+        use_microtiming: useMicrotiming,
+        ticks_per_quarter: selectedTicksPerQuarter,
+        max_microtiming_shift: selectedMaxMicrotimingShift,
+        num_microtiming_bins: selectedNumMicrotimingBins,
       };
-
       formData.append('file', file);
       formData.append('config', JSON.stringify(configData));
 
@@ -205,28 +228,74 @@ function App() {
     setHoveredNote(note);
   };
 
+  function flattenTokens(list: NestedList<Token>): Token[] {
+    if (Array.isArray(list)) {
+      return list.flatMap(item => (Array.isArray(item) ? flattenTokens(item) : [item]));
+    }
+    return [list];
+  }
+  
+  
   const handleNoteSelect = (note: Note | null) => {
     setSelectedNote(note);
-    setSelectedToken(null);
-  }
+    if (note) {
+      const matchingToken = responses
+        .flatMap(res => flattenTokens(res.response?.data.tokens ?? []))
+        .find(token => token.note_id === note.note_id);
+      setSelectedToken(matchingToken || null);
+    } else {
+      setSelectedToken(null);
+    }
+  };
+  
+  const handleTokenSelect = (token: Token | null) => {
+    setSelectedToken(token);
+    if (token) {
+      const matchingNote = responses
+        .flatMap(res => res.response?.data.notes.flat() ?? [])
+        .find(note => note.note_id === token.note_id);
+      setSelectedNote(matchingNote || null);
+    } else {
+      setSelectedNote(null);
+    }
+  };
 
   const handleTokenHover = (token: Token | null) => {
     setHoveredToken(token);
   };
 
-  const handleTokenSelect = (token: Token | null) => {
-    setSelectedToken(token);
-    setSelectedNote(null);
-  }
-
   return (
     <div className="App">
       <header className="App-header">
-      <div>
+        <div
+          className="title"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          onClick={() => window.location.reload()}
+        >
+          <span style={{ fontSize: '34px', fontWeight: 'bold', color: 'black' }}>
+            MidiTok Visualizer
+          </span>
+        </div>
+      
+        <div>
           {uploaderVisible ? (
             <form onSubmit={handleUpload}>
-              <div className="form-row">
-                <label htmlFor="tokenizerSelect">Select Tokenizer Type: </label>
+              <div className="file-upload title">
+                <FileUpload onFileSelect={handleFileChange} acceptedFormats={".mid"} />
+                <button type="submit" disabled={loading}>
+                  {loading ? <Spinner /> : 'Upload'}
+                </button>
+              </div>
+              <div className="tokenizerConfigContainer">
+                <button
+                  type="button"
+                  className="tokenizerConfigButton"
+                  onClick={toggleTokenizerConfig}
+                >
+                  {showTokenizerConfig ? 'Hide Tokenizer Config' : 'Show Tokenizer Config'}
+                </button>
+              </div>
+              <div className="form-row tokenizerSelectContainer">
                 <div>
                   <select id="tokenizerSelect" value={selectedTokenizer} onChange={handleTokenizerChange}>
                     <option value="REMI">REMI</option>
@@ -235,95 +304,100 @@ function App() {
                     <option value="Structured">Structured</option>
                     <option value="CPWord">CPWord</option>
                     <option value="Octuple">Octuple</option>
+                    <option value="PerTok">PerTok</option>
                   </select>
                 </div>
               </div>
 
-              <button type="button" className="tokenizerConfigButton" onClick={toggleTokenizerConfig}>
-                {showTokenizerConfig ? 'Hide Tokenizer Config' : 'Show Tokenizer Config'}
-              </button>
-
               {showTokenizerConfig && (
                 <>
                   <div className="tokenizerConfig">
+                    {/* PITCH RANGE */}
                     <div className="form-row">
                       <div className="label-container">
                         <label htmlFor="pitchRange">Select Pitch Range: </label>
                       </div>
                       <div className="select-container">
-                        <RangeSlider onRangeChange={handlePitchRangeChange} initialValues={selectedPitchRange} limits={[0, 127]} />
+                        <RangeSlider
+                          onRangeChange={handlePitchRangeChange}
+                          initialValues={selectedPitchRange}
+                          limits={[0, 127]}
+                        />
                       </div>
                     </div>
 
+                    {/* VELOCITY BINS */}
                     <div className="form-row">
                       <div className="label-container">
                         <label htmlFor="velocityBins">Number of velocity bins: </label>
                       </div>
                       <div className="select-container">
-                        <SingleValueSlider onValueChange={handleVelocityBinsChange} initialValue={selectedVelocityBins} limits={[0, 127]} />
+                        <SingleValueSlider
+                          onValueChange={handleVelocityBinsChange}
+                          initialValue={selectedVelocityBins}
+                          limits={[0, 127]}
+                        />
                       </div>
                     </div>
 
+                    {/* SPECIAL TOKENS */}
                     <div className="form-row">
                       <label htmlFor="specialTokens">Special Tokens (comma-separated): </label>
-                      <input type="text" id="specialTokens" value={specialTokens} onChange={handleSpecialTokensChange} />
+                      <input
+                        type="text"
+                        id="specialTokens"
+                        value={specialTokens}
+                        onChange={handleSpecialTokensChange}
+                      />
                     </div>
 
+                    {/* CHORDS / RESTS / TEMPOS */}
                     <div className="form-row">
                       <label>
                         <input type="checkbox" checked={useChords} onChange={handleUseChordsChange} />
                         Use Chords
                       </label>
-                    </div>
-
-                    <div className="form-row">
                       <label>
                         <input type="checkbox" checked={useRests} onChange={handleUseRestsChange} />
                         Use Rests
                       </label>
-                    </div>
-
-                    <div className="form-row">
                       <label>
                         <input type="checkbox" checked={useTempos} onChange={handleUseTemposChange} />
                         Use Tempos
                       </label>
                     </div>
 
+                    {/* TIME SIGNATURES / SUSTAIN PEDALS / PITCH BENDS */}
                     <div className="form-row">
                       <label>
                         <input type="checkbox" checked={useTimeSignatures} onChange={handleUseTimeSignaturesChange} />
                         Use Time Signatures
                       </label>
-                    </div>
-
-                    <div className="form-row">
                       <label>
                         <input type="checkbox" checked={useSustainPedals} onChange={handleUseSustainPedalsChange} />
                         Use Sustain Pedals
                       </label>
-                    </div>
-
-                    <div className="form-row">
                       <label>
                         <input type="checkbox" checked={usePitchBends} onChange={handleUsePitchBendsChange} />
                         Use Pitch Bends
                       </label>
                     </div>
 
-                    {selectedTokenizer === 'TSD' ||
+                    {/* USE PROGRAMS */}
+                    {(selectedTokenizer === 'TSD' ||
                       selectedTokenizer === 'REMI' ||
                       selectedTokenizer === 'MIDILike' ||
                       selectedTokenizer === 'Structured' ||
-                      selectedTokenizer === 'CPWord' ? (
-                      <div className="form-row">
-                        <label>
-                          <input type="checkbox" checked={usePrograms} onChange={handleUseProgramsChange} />
-                          Use Programs
-                        </label>
-                      </div>
-                    ) : null}
+                      selectedTokenizer === 'CPWord') && (
+                        <div className="form-row">
+                          <label>
+                            <input type="checkbox" checked={usePrograms} onChange={handleUseProgramsChange} />
+                            Use Programs
+                          </label>
+                        </div>
+                    )}
 
+                    {/* PROGRAMS SLIDER */}
                     {usePrograms && (
                       <>
                         <div className="form-row">
@@ -331,43 +405,67 @@ function App() {
                             <label htmlFor="programsSlider">MIDI programs: </label>
                           </div>
                           <div className="select-container">
-                            <RangeSlider onRangeChange={handleProgramsChange} initialValues={selectedPrograms} limits={[-1, 128]} />
+                            <RangeSlider
+                              onRangeChange={handleProgramsChange}
+                              initialValues={selectedPrograms}
+                              limits={[-1, 128]}
+                            />
                           </div>
                         </div>
 
                         <div className="form-row">
                           <label>
-                            <input type="checkbox" checked={oneTokenStreamForPrograms} onChange={handleOneTokenStreamForProgramsChange} />
+                            <input
+                              type="checkbox"
+                              checked={oneTokenStreamForPrograms}
+                              onChange={handleOneTokenStreamForProgramsChange}
+                            />
                             One Token Stream for Programs
                           </label>
                         </div>
 
-                        {selectedTokenizer === 'REMI' || selectedTokenizer === 'TSD' || selectedTokenizer === 'MIDILike' ? (
+                        {(selectedTokenizer === 'REMI' ||
+                          selectedTokenizer === 'TSD' ||
+                          selectedTokenizer === 'MIDILike') && (
                           <div className="form-row">
                             <label>
-                              <input type="checkbox" checked={programChanges} onChange={handleProgramChangesChange} />
+                              <input
+                                type="checkbox"
+                                checked={programChanges}
+                                onChange={handleProgramChangesChange}
+                              />
                               Program Changes
                             </label>
                           </div>
-                        ) : null}
+                        )}
                       </>
                     )}
 
+                    {/* TEMPO BINS */}
                     <div className="form-row">
                       <div className="label-container">
                         <label htmlFor="nbTempos">Number of tempos bins: </label>
                       </div>
                       <div className="select-container">
-                        <SingleValueSlider onValueChange={handleNbTemposChange} initialValue={selectedNbTempos} limits={[0, 100]} />
+                        <SingleValueSlider
+                          onValueChange={handleNbTemposChange}
+                          initialValue={selectedNbTempos}
+                          limits={[0, 100]}
+                        />
                       </div>
                     </div>
 
+                    {/* TEMPO RANGE */}
                     <div className="form-row">
                       <div className="label-container">
                         <label htmlFor="tempoRange">Select Tempo Range: </label>
                       </div>
                       <div className="select-container">
-                        <RangeSlider onRangeChange={handleTempoRangeChange} initialValues={selectedTempoRange} limits={[0, 350]} />
+                        <RangeSlider
+                          onRangeChange={handleTempoRangeChange}
+                          initialValues={selectedTempoRange}
+                          limits={[0, 350]}
+                        />
                       </div>
                     </div>
 
@@ -378,36 +476,54 @@ function App() {
                       </label>
                     </div>
 
-                    {selectedTokenizer !== 'Octuple' ? (
+                    {/* TEMPO/TIME SIG CHANGES */}
+                    {selectedTokenizer !== 'Octuple' && (
                       <>
                         <div className="form-row">
                           <label>
-                            <input type="checkbox" checked={deleteEqualSuccessiveTempoChanges} onChange={handleDeleteEqualSuccessiveTempoChangesChange} />
+                            <input
+                              type="checkbox"
+                              checked={deleteEqualSuccessiveTempoChanges}
+                              onChange={handleDeleteEqualSuccessiveTempoChangesChange}
+                            />
                             Delete Equal Successive Tempo Changes
                           </label>
                         </div>
                         <div className="form-row">
                           <label>
-                            <input type="checkbox" checked={deleteEqualSuccessiveTimeSigChanges} onChange={handleDeleteEqualSuccessiveTimeSigChangesChange} />
+                            <input
+                              type="checkbox"
+                              checked={deleteEqualSuccessiveTimeSigChanges}
+                              onChange={handleDeleteEqualSuccessiveTimeSigChangesChange}
+                            />
                             Delete Equal Successive Time Signature Changes
                           </label>
                         </div>
                       </>
-                    ) : null}
+                    )}
 
                     <div className="form-row">
                       <label>
-                        <input type="checkbox" checked={sustainPedalDuration} onChange={handleSustainPedalDurationChange} />
+                        <input
+                          type="checkbox"
+                          checked={sustainPedalDuration}
+                          onChange={handleSustainPedalDurationChange}
+                        />
                         Sustain Pedal Duration
                       </label>
                     </div>
 
+                    {/* PITCH BEND RANGE */}
                     <div className="form-row">
                       <div className="label-container">
                         <label htmlFor="pitchBendRange">Select Pitch Bend Range: </label>
                       </div>
                       <div className="select-container">
-                        <RangeSlider onRangeChange={handlePitchBendRangeChange} initialValues={pitchBendRange} limits={[-8192, 8191]} />
+                        <RangeSlider
+                          onRangeChange={handlePitchBendRangeChange}
+                          initialValues={pitchBendRange}
+                          limits={[-8192, 8191]}
+                        />
                       </div>
                     </div>
 
@@ -416,26 +532,76 @@ function App() {
                         <label htmlFor="pitchBendRangeNumber">Select Pitch Bend Range: </label>
                       </div>
                       <div className="select-container">
-                        <SingleValueSlider onValueChange={handlePitchBendRangeNumberChange} initialValue={pitchBendRangeNumber} limits={[0, 100]} />
+                        <SingleValueSlider
+                          onValueChange={handlePitchBendRangeNumberChange}
+                          initialValue={pitchBendRangeNumber}
+                          limits={[0, 100]}
+                        />
                       </div>
                     </div>
 
+                    {/* MICROTIMING */}
+                    {selectedTokenizer === 'PerTok' && (
+                      <>
+                        <div className="form-row">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={useMicrotiming}
+                              onChange={handleUseMicrotiming}
+                            />
+                            use Microtiming
+                          </label>
+                        </div>
+                        <div className="form-row">
+                          <div className="label-container">
+                            <label htmlFor="ticksPerQuarter">Ticks per quarter: </label>
+                          </div>
+                          <div className="select-container">
+                            <SingleValueSlider
+                              onValueChange={handleTicksPerQuarterChange}
+                              initialValue={selectedTicksPerQuarter}
+                              limits={[24, 960]}
+                            />
+                          </div>
+                        </div>
+                        <div className="form-row">
+                          <div className="label-container">
+                            <label htmlFor="maxMicrotimingShift">Max microtiming shifts: </label>
+                          </div>
+                          <div className="select-container">
+                            <SingleValueSlider
+                              onValueChange={handleMaxMicrotimingShiftChange}
+                              initialValue={selectedMaxMicrotimingShift}
+                              limits={[0, 1]}
+                              step={0.125}
+                            />
+                          </div>
+                        </div>
+                        <div className="form-row">
+                          <div className="label-container">
+                            <label htmlFor="numMicrotimingBins">Number of microtiming bins: </label>
+                          </div>
+                          <div className="select-container">
+                            <SingleValueSlider
+                              onValueChange={handleNumMicrotimingBinsChange}
+                              initialValue={selectedNumMicrotimingBins}
+                              limits={[1, 64]}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </>
               )}
-
-              <div className="form-row">
-                <FileUpload onFileSelect={handleFileChange} acceptedFormats={".mid"} />
-                <button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : 'Upload'}
-                </button>
-              </div>
             </form>
           ) : null}
 
           {responses.length > 0 ? (
             <button
-              style={{ width: '100%', marginTop: 0, backgroundColor: 'transparent', borderTopRightRadius: 0, borderTopLeftRadius: 0 }}
+              style={{ width: '100%', marginTop: 2, marginBottom: 2}}
+              className="tokenizerConfigButton"
               onClick={() => setUploaderVisible(!uploaderVisible)}
             >
               {uploaderVisible ? "Hide" : "Show"}
@@ -447,70 +613,86 @@ function App() {
           <Tabs>
             <TabList>
               {responses.map((res, index) => (
-                <Tab key={index}>{res.file.name}</Tab>
+                <Tab key={index}>{res.file.name}</Tab> 
               ))}
             </TabList>
-
+            
             {responses.map((res, index) => (
-            <TabPanel key={index}>
-              {res.response ? (
-                <>
-                  <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                    <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                      {res.response?.data ? <MusicInfoDisplay data={res.response.data.metrics} /> : res.response?.error}
-                    </ErrorBoundary>
-                  </div>
-                  <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                    <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                      {res.response?.data ? <FilePlayback file={res.file} /> : null}
-                    </ErrorBoundary>
-                  </div>
-                  <div style={{ display: 'flex', width: '100%', maxWidth: '100vw' }}>
-                    <div style={{ overflowY: 'auto', whiteSpace: 'nowrap', maxHeight: '100vh', flex: '0 0 50%' }}>
+              <TabPanel key={index}>
+                {res.response ? (
+                  <>
+                    {/* Section with MusicInfoDisplay and FilePlayback */}
+                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
                       <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                        {res.response?.data ?
-                          <DataDisplay
-                            data={res.response.data.tokens}
-                            hoveredNote={hoveredNote}
-                            selectedNote={selectedNote}
-                            onTokenHover={handleTokenHover}
-                            onTokenSelect={handleTokenSelect}
-                            hoveredToken={hoveredToken}
-                            selectedToken={selectedToken}
-                          /> : res.response?.error}
+                        {res.response?.data ? (
+                          <MusicInfoDisplay data={res.response.data.metrics} />
+                        ) : (
+                          res.response?.error
+                        )}
                       </ErrorBoundary>
                     </div>
-                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', flex: '0 0 50%' }}>
+                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
                       <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                        {res.response?.data && res.response.data.notes.length > 0 ? (
-                          <Tabs>
-                            <TabList>
-                              {res.response.data.notes.map((_, idx) => (
-                                <Tab key={idx}>Track {idx + 1}</Tab>
-                              ))}
-                            </TabList>
-                            {res.response.data.notes.map((notes, idx) => (
-                              <TabPanel key={idx}>
-                                <PianoRollDisplay
-                                  notes={res.response?.data?.notes ?? [[]]}
-                                  onNoteHover={handleNoteHover}
-                                  onNoteSelect={handleNoteSelect}
-                                  hoveredToken={hoveredToken}
-                                  selectedToken={selectedToken}
-                                  track={idx}
-                                />
-                              </TabPanel>
-                            ))}
-                          </Tabs>
-                        ) : res.response?.error}
+                        {res.response?.data ? <FilePlayback file={res.file} /> : null}
                       </ErrorBoundary>
                     </div>
-                  </div>
-                </>
-              ) : <p>No response data available</p>}
-            </TabPanel>
-          ))}
 
+                    {/* Grid layout */}
+                    <div className="grid-layout">
+                      {/* LEFT COLUMN: DataDisplay */}
+                      <div className="left-column">
+                        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                          {res.response?.data ? (
+                            <DataDisplay
+                              data={res.response.data.tokens}
+                              hoveredNote={hoveredNote}
+                              selectedNote={selectedNote}
+                              onTokenHover={handleTokenHover}
+                              onTokenSelect={handleTokenSelect}
+                              hoveredToken={hoveredToken}
+                              selectedToken={selectedToken}
+                            />
+                          ) : (
+                            res.response?.error
+                          )}
+                        </ErrorBoundary>
+                      </div>
+
+                      {/* RIGHT COLUMN: PianoRollDisplay */}
+                      <div className="right-column">
+                        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                          {res.response?.data && res.response.data.notes.length > 0 ? (
+                            <Tabs>
+                              <TabList>
+                                {res.response.data.notes.map((_, idx) => (
+                                  <Tab key={idx}>Track {idx + 1}</Tab>
+                                ))}
+                              </TabList>
+                              {res.response.data.notes.map((notes, idx) => (
+                                <TabPanel key={idx}>
+                                  <PianoRollDisplay
+                                    notes={res.response?.data?.notes ?? [[]]}
+                                    onNoteHover={handleNoteHover}
+                                    onNoteSelect={handleNoteSelect}
+                                    hoveredToken={hoveredToken}
+                                    selectedToken={selectedToken}
+                                    track={idx}
+                                  />
+                                </TabPanel>
+                              ))}
+                            </Tabs>
+                          ) : (
+                            res.response?.error
+                          )}
+                        </ErrorBoundary>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p>No response data available</p>
+                )}
+              </TabPanel>
+            ))}
           </Tabs>
         )}
       </header>

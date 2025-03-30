@@ -1,0 +1,21 @@
+{
+    "services": {
+      "f84c80c5-d19b-43d5-b21d-e072be3fe2fe": {
+        "name": "backend",
+        "build": {
+          "builder": "docker",
+          "dockerfilePath": "railway/backend/Dockerfile",
+          "buildContext": "."
+        }
+      },
+      "a40da02c-341f-491c-afeb-a3e389f11b29": {
+        "name": "frontend",
+        "build": {
+          "builder": "docker",
+          "dockerfilePath": "railway/frontend/Dockerfile",
+          "buildContext": "."
+        }
+      }
+    }
+  }
+  

@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@tonejs/midi": "^2.0.28",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.60",
     "@types/react": "^18.2.33",
@@ -17,16 +18,16 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-midi-player": "^1.0.8",
-    "react-tabs": "^6.0.0",
     "react-scripts": "5.0.1",
     "react-slider": "^2.0.6",
     "react-spinners": "^0.13.8",
     "react-tabs": "^6.0.0",
+    "tone": "^15.0.4",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "FAST_REFRESH=false react-scripts start",
+    "dev": "cross-env FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
     "start": "npx serve -s build",
     "test": "react-scripts test",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-slider": "^1.3.4"
+    "@types/react-slider": "^1.3.4",
+    "cross-env": "^7.0.3"
   }
 }

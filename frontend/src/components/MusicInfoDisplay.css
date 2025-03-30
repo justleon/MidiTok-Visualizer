@@ -1,0 +1,42 @@
+.music-info-block {
+    text-align: center;
+    display: inline-block;
+    width: 200px;
+    height: 100px;
+    border: 2px solid black;
+    border-radius: 5px;
+    margin: 5px;
+    position: relative;
+    background-color: white
+}
+
+.music-info-title {
+    font-size: 24px;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  
+  .music-info-resolution {
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  
+  .music-info-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .music-info-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .music-info-text {
+    font-size: 12px;
+  }
+  

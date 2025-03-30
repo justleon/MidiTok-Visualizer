@@ -1,142 +1,140 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Note, Token } from '../interfaces/ApiResponse';
+import './PianoRollDisplay.css';
 
 interface PianoRollDisplayProps {
-    notes: Note[][];
-    onNoteHover: (note: Note | null) => void;
-    onNoteSelect: (note: Note | null) => void;
-    track?: number;
-    hoveredToken: Token | null;
-    selectedToken: Token | null;
+  notes: Note[][];
+  onNoteHover: (note: Note | null) => void;
+  onNoteSelect: (note: Note | null) => void;
+  track?: number;
+  hoveredToken: Token | null;
+  selectedToken: Token | null;
 }
 
-const PianoRollDisplay: React.FC<PianoRollDisplayProps> = ({ notes, onNoteHover, onNoteSelect, hoveredToken, selectedToken, track = 0 }) => {
+const PianoRollDisplay: React.FC<PianoRollDisplayProps> = ({
+  notes,
+  onNoteHover,
+  onNoteSelect,
+  hoveredToken,
+  selectedToken,
+  track = 0,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pianoRollContainerRef = useRef<HTMLDivElement>(null);
+  const bottomScrollRef = useRef<HTMLDivElement>(null);
+
+  const trackNotes = useMemo(() => notes[track] || [], [notes, track]);
+  const allNotes = useMemo(() => notes.flat(), [notes]);
+
+  const globalLowestPitch = useMemo(
+    () => (allNotes.length > 0 ? Math.min(...allNotes.map((n) => n.pitch)) : 60),
+    [allNotes]
+  );
+  const globalHighestPitch = useMemo(
+    () => (allNotes.length > 0 ? Math.max(...allNotes.map((n) => n.pitch)) : 72),
+    [allNotes]
+  );
+  const globalMaxTime = useMemo(
+    () => (allNotes.length > 0 ? Math.max(...allNotes.map((n) => n.end)) : 0),
+    [allNotes]
+  );
+
+  const lowestOctaveNote = Math.floor(globalLowestPitch / 12) * 12 - 12;
+  const highestOctaveNote = Math.ceil(globalHighestPitch / 12) * 12 + 11;
+
+  const noteHeight = 20;
+  const whiteKeyWidth = 75;
+  const noteStartOffset = whiteKeyWidth + 10; 
+  const timeScale = 0.5;
+
+  const numKeys = highestOctaveNote - lowestOctaveNote + 1;
+  const minGridWidth = 1000;
+  const canvasHeight = numKeys * noteHeight;
+  const canvasWidth = Math.max(globalMaxTime * timeScale + noteStartOffset, minGridWidth);
+
   const [hoveredNote, setHoveredNote] = useState<Note | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-  const noteHeight = 20;
-  const keyWidth = 75;
-  const verticalGridLineInterval = 12.5;
-  const verticalGridLineThickerInterval = 100;
-  const timeScale = 0.5;
-
-  // Calculate the range of notes to be displayed
-  const trackNotes = notes[track] || [];
-  const lowestNote = Math.min(...trackNotes.map(note => note.pitch));
-  const highestNote = Math.max(...trackNotes.map(note => note.pitch));
-  const maxTime = Math.max(...trackNotes.map(note => note.end));
-
-  const lowestOctaveNote = Math.floor(lowestNote / 12) * 12 - 12;
-  const highestOctaveNote = Math.ceil(highestNote / 12) * 12 + 11;
-
-  const numKeys = highestOctaveNote - lowestOctaveNote + 1;
-  const canvasHeight = numKeys * noteHeight;
-  const canvasWidth = maxTime * timeScale + 200;
-
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    if (!canvas || !ctx) {
-      return;
-    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const drawGrid = () => {
-      ctx.lineWidth = 0.35;
+      ctx.lineWidth = 0.5;
 
-      // Draw horizontal grid lines
       for (let i = 0; i <= numKeys; i++) {
         const y = canvasHeight - i * noteHeight;
-        ctx.strokeStyle = '#ccc';
+        ctx.strokeStyle = 'lightgray';
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvasWidth, y);
         ctx.stroke();
       }
-
-      // Draw vertical grid lines for 16th notes
-      for (let i = 0; i < canvasWidth; i += verticalGridLineInterval) {
-        ctx.strokeStyle = (i % verticalGridLineThickerInterval === 0) ? '#aaa' : '#ccc'; // Thicker lines for beats
-        ctx.beginPath();
-        ctx.moveTo(i + keyWidth, 0);
-        ctx.lineTo(i + keyWidth, canvasHeight);
-        ctx.stroke();
-
-        // Change background color every 4 grid lines
-        if ((i / verticalGridLineInterval) % 8 < 4) {
-          ctx.fillStyle = '#2a2a2a';
-        } else {
-          ctx.fillStyle = '#3a3a3a';
-        }
-        ctx.fillRect(i + keyWidth, 0, verticalGridLineInterval, canvasHeight);
-      }
     };
 
     const drawNotes = () => {
-      trackNotes.forEach(note => {
-        const highlight_token = hoveredToken && note.start + ':' + note.pitch === hoveredToken.note_id;
-        const selected_token = selectedToken && note.start + ':' + note.pitch === selectedToken.note_id;
-
+      trackNotes.forEach((note) => {
+        const highlight_token = hoveredToken && note.note_id === hoveredToken.note_id;
+        const selected_token = selectedToken && note.note_id === selectedToken.note_id;
         const highlight_note = note === hoveredNote;
         const selected_note = note === selectedNote;
 
         const highlight = highlight_token || highlight_note;
         const selected = selected_token || selected_note;
 
-        ctx.fillStyle = highlight ? '#ebcc34' : selected ? '#de1818' : '#1c13d1';
-        
-        const x = note.start * timeScale; // Simplified position calculation
-        const y = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight; // Corrected position calculation
-        const width = (note.end - note.start) * timeScale;
+        ctx.fillStyle = highlight ? 'yellow' : selected ? 'red' : 'blue';
 
-        ctx.fillRect(x + keyWidth, y, width, noteHeight);
-        ctx.fillStyle = highlight ? 'black' : 'white';
-        ctx.fillText(note.name, x + keyWidth + 2, y + noteHeight - 2);
+        const x = note.start * timeScale + noteStartOffset;
+        const width = Math.max((note.end - note.start) * timeScale, 1); 
+        const y = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, noteHeight, 5);
+        ctx.fill();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       });
     };
 
-    const drawPianoKeys = () => {
-      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-
-      for (let i = 0; i <= numKeys; i++) {
-        const y = canvasHeight - (i + 1) * noteHeight; // Corrected position calculation
-        const noteNumber = lowestOctaveNote + i; // Extend one octave below
-        const noteName = noteNames[noteNumber % 12] + Math.floor(noteNumber / 12 - 1); // Shifted one octave down
-        const isBlackKey = ['C#', 'D#', 'F#', 'G#', 'A#'].includes(noteNames[noteNumber % 12]);
-        ctx.fillStyle = isBlackKey ? 'black' : 'white';
-        ctx.fillRect(0, y, keyWidth, noteHeight);
-        ctx.strokeRect(0, y, keyWidth, noteHeight);
-        ctx.fillStyle = isBlackKey ? 'white' : 'black';
-        ctx.fillText(noteName, 2, y + noteHeight - 2);
-      }
-    };
-
-    const clearCanvas = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
-
-    clearCanvas();
     drawGrid();
-    drawPianoKeys();
     drawNotes();
-  }, [notes, track, hoveredToken, selectedToken, hoveredNote, selectedNote, lowestNote, highestNote, lowestOctaveNote, highestOctaveNote, maxTime]);
+  }, [
+    trackNotes,
+    hoveredToken,
+    selectedToken,
+    hoveredNote,
+    selectedNote,
+    lowestOctaveNote,
+    numKeys,
+    canvasHeight,
+    canvasWidth,
+    timeScale,
+    noteStartOffset,
+  ]);
 
   const handleMouseMove = (event: React.MouseEvent) => {
     const canvas = canvasRef.current;
-    const rect = canvas?.getBoundingClientRect();
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
 
-    if (!canvas || !rect) {
-      return;
-    }
-
-    const x = event.clientX - rect.left - keyWidth;
+    const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const hovered = trackNotes.find(note => {
-      const noteX = note.start * timeScale;
-      const noteY = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
+    const hovered = trackNotes.find((note) => {
+      const noteX = note.start * timeScale + noteStartOffset;
       const noteWidth = (note.end - note.start) * timeScale;
-      return x >= noteX && x <= noteX + noteWidth && y >= noteY && y <= noteY + noteHeight;
+      const noteY = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
+
+      return (
+        x >= noteX &&
+        x <= noteX + noteWidth &&
+        y >= noteY &&
+        y <= noteY + noteHeight
+      );
     });
     setHoveredNote(hovered || null);
     onNoteHover(hovered || null);
@@ -146,54 +144,106 @@ const PianoRollDisplay: React.FC<PianoRollDisplayProps> = ({ notes, onNoteHover,
     setHoveredNote(null);
     onNoteHover(null);
   };
-  
+
   const handleNoteClick = (event: React.MouseEvent) => {
     const canvas = canvasRef.current;
-    const rect = canvas?.getBoundingClientRect();
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
 
-    if (!canvas || !rect) {
-      return;
-    }
-
-    const x = event.clientX - rect.left - keyWidth;
+    const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const clicked = trackNotes.find(note => {
-      const noteX = note.start * timeScale;
-      const noteY = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
+    const clicked = trackNotes.find((note) => {
+      const noteX = note.start * timeScale + noteStartOffset;
       const noteWidth = (note.end - note.start) * timeScale;
-      return x >= noteX && x <= noteX + noteWidth && y >= noteY && y <= noteY + noteHeight;
+      const noteY = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
+
+      return (
+        x >= noteX &&
+        x <= noteX + noteWidth &&
+        y >= noteY &&
+        y <= noteY + noteHeight
+      );
     });
     setSelectedNote(clicked || null);
     onNoteSelect(clicked || null);
   };
 
   useEffect(() => {
-    if (hoveredToken) {
-      const hoveredNote = trackNotes.find(note => note.start + ':' + note.pitch === hoveredToken.note_id);
-      setHoveredNote(hoveredNote || null);
-      onNoteHover(hoveredNote || null);
-    }
-  }, [hoveredToken, trackNotes, onNoteHover]);
+    const pianoRoll = pianoRollContainerRef.current;
+    const bottomScroll = bottomScrollRef.current;
 
-  useEffect(() => {
-    if (selectedToken) {
-      const selectedNote = trackNotes.find(note => note.start + ':' + note.pitch === selectedToken.note_id);
-      setSelectedNote(selectedNote || null);
-      onNoteSelect(selectedNote || null);
+    if (pianoRoll && bottomScroll) {
+      const onScroll = () => {
+        bottomScroll.scrollLeft = pianoRoll.scrollLeft;
+      };
+
+      pianoRoll.addEventListener('scroll', onScroll);
+      return () => {
+        pianoRoll.removeEventListener('scroll', onScroll);
+      };
     }
-  }, [selectedToken, trackNotes, onNoteSelect]);
+  }, []);
+
+  const handleBottomScroll = () => {
+    const pianoRoll = pianoRollContainerRef.current;
+    const bottomScroll = bottomScrollRef.current;
+
+    if (pianoRoll && bottomScroll) {
+      pianoRoll.scrollLeft = bottomScroll.scrollLeft;
+    }
+  };
 
   return (
-    <div style={{ overflowX: 'auto', maxWidth: '100%' }}>
-      <canvas
-        ref={canvasRef}
-        width={canvasWidth}
-        height={canvasHeight}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleNoteClick}
-        style={{ border: '1px solid black' }}
-      />
+    <div className="piano-roll-container">
+      <div ref={pianoRollContainerRef} className="piano-roll-scrollable">
+        <div
+          className="piano-roll-key-column"
+          style={{ width: `${whiteKeyWidth}px`, height: `${canvasHeight}px` }}
+        >
+          {Array.from({ length: numKeys }, (_, i) => {
+            const y = canvasHeight - (i + 1) * noteHeight;
+            const noteNumber = lowestOctaveNote + i;
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const baseName = noteNames[noteNumber % 12];
+            const isBlack = ['C#', 'D#', 'F#', 'G#', 'A#'].includes(baseName);
+            const noteName = `${baseName}${Math.floor(noteNumber / 12) - 1}`;
+  
+            return (
+              <div
+                key={i}
+                className={`piano-roll-key ${isBlack ? 'black' : 'white'}`}
+                style={{
+                  top: `${y}px`,
+                  width: `${whiteKeyWidth}px`,
+                  height: `${noteHeight}px`,
+                }}
+              >
+                {noteName}
+              </div>
+            );
+          })}
+        </div>
+        <canvas
+          ref={canvasRef}
+          width={canvasWidth}
+          height={canvasHeight}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onClick={handleNoteClick}
+          className="piano-roll-canvas"
+        />
+      </div>
+  
+      <div
+        ref={bottomScrollRef}
+        className="piano-roll-bottom-scroll"
+        onScroll={handleBottomScroll}
+      >
+        <div
+          className="piano-roll-bottom-scroll-placeholder"
+          style={{ width: `${canvasWidth}px` }}
+        />
+      </div>
     </div>
   );
 };

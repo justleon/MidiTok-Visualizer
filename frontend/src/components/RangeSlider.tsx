@@ -26,7 +26,11 @@ const RangeSlider: React.FC<RangeSliderProps> = ({ onRangeChange, initialValues,
         defaultValue={values}
         ariaLabel={["Lower thumb", "Upper thumb"]}
         ariaValuetext={state => `Thumb value ${state.valueNow}`}
-        renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
+        renderThumb={(props, state) => (
+          <div {...props}>
+            <span className="thumb-value">{state.valueNow}</span>
+          </div>
+        )}
         pearling
         minDistance={10}
         min={limits[0]}

@@ -70,6 +70,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         except Exception as e:
             self._logger.exception({"path": request.url.path, "method": request.method, "reason": e})
+            return Response(content="Internal Server Error", status_code=500)
 
 
 class AsyncIteratorWrapper:

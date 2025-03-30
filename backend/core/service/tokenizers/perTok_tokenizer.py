@@ -1,6 +1,7 @@
-from miditok import CPWord
+from miditok import PerTok
 
 
-class CPWordTokenizer(CPWord):
+class PerTokTokenizer(PerTok):
+
     def __init__(self, config):
         super().__init__(config)
