@@ -22,6 +22,7 @@ origins = [
     "http://localhost:3000",
     "https://wimu-frontend-ccb0bbc023d3.herokuapp.com",
     "https://miditok-visualizer-production-frontend.up.railway.app",
+    "https://miditokenizer-4cf444dcffd3.herokuapp.com"
 ]
 
 
@@ -78,12 +79,3 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
     except Exception as e:
         return JSONResponse(content={"success": False, "data": None, "error": str(e)}, status_code=500)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-@app.get("/")
-async def read_index():
-    return FileResponse("static/index.html")
-
-@app.get("/{catch_all:path}")
-async def catch_all(catch_all: str):
-    return FileResponse("static/index.html")
