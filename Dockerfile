@@ -9,17 +9,16 @@ FROM python:3.11-buster
 RUN pip install poetry==1.6.1 && pip install gunicorn uvicorn
 
 WORKDIR /app
+
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN touch README.md
+COPY backend/core ./core
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
 
-COPY backend/core ./core
 COPY --from=frontend-builder /app/frontend/build ./static
 
-# Instaluj serve do serwowania statycznych plików
 RUN npm install -g serve
 
-# Skrypt startowy
 COPY start.sh ./
 RUN chmod +x start.sh
 
