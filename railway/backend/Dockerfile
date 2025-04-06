@@ -1,4 +1,5 @@
 FROM python:3.11-buster AS builder
+RUN apt-get update && apt-get install -y libc6
 RUN pip install poetry==1.6.1
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
