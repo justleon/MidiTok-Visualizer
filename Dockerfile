@@ -27,7 +27,7 @@ RUN pip install poetry==1.6.1 && \
     pip install gunicorn uvicorn fastapi
 
 
-COPY --from=frontend-builder /app/frontend/build ./static
+COPY --from=frontend-builder /app/frontend/build/ ./static
 
 
 RUN npm install -g serve
