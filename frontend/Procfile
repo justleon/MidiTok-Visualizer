@@ -1,1 +1,1 @@
-worker: cd frontend && serve -s build -l ${PORT:-3000}
+web: npm run start
