@@ -146,10 +146,12 @@ def pitch_to_name(pitch: int) -> str:
     note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     octave = pitch // 12 - 1
     note = note_names[pitch % 12]
+    print("siena")
     return f"{note}{octave}"
 
 
 def add_notes_id(tokens, notes, tokenizer):
+    global current_note_id
     notes_ids = []
     i = 0
     tracks_len = []
@@ -178,6 +180,9 @@ def add_notes_id(tokens, notes, tokenizer):
                     token.note_id = current_note_id
                     token.track_id = current_track_id
                 elif token.type_ in ["Velocity", "Duration", "MicroTiming"]:
+                    if current_note_id is None:
+                        print("Warning: current_note_id is None!")
+                        continue
                     if current_note_id is not None:
                         token.note_id = current_note_id
                         token.track_id = current_track_id
