@@ -1,4 +1,4 @@
-# WIMU 25L
+# WIMU 25L Design Proposal
 
 ## Funkcje oraz komentarze opisujący aktualny stan
 

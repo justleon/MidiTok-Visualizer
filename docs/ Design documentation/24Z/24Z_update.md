@@ -14,7 +14,7 @@
 - Tokens can be paginated and scaled
 - New audio player
 
-![Screenshot of app](img/app_screenshot.png)
+![Screenshot of app](../../img/app_screenshot.png)
 
 ## Deployment
 

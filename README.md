@@ -6,7 +6,7 @@ MidiTok Visualizer is a web application which allows to visualize MIDI tokenizat
 
 MidiTok Visualizer has been published at the Late Breaking Demos session at ISMIR 2024.
 
-![Screenshot of app](img/miditok_visualizer_small.png)
+![Screenshot of app](docs/img/miditok_visualizer_small.png)
 
 ## Key Functionalities
 

@@ -1,0 +1,1 @@
+Tu powstanie dokumentacja dotycząca kodu (automatyczna), uruchomienia itd

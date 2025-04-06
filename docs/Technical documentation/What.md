@@ -1,0 +1,1 @@
+Dokumentacja dotycząca architektury systemu, deployment, CI/CD, docker itd
