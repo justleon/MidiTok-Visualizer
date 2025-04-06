@@ -1,2 +1,1 @@
-web: serve -s build -l $PORT
-frontend: serve -s build -l $PORT
+worker: cd frontend && serve -s build -l ${PORT:-3000}

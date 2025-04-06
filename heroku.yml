@@ -1,8 +1,8 @@
 build:
   docker:
     web: backend/Dockerfile
-    frontend: frontend/Dockerfile
+    worker: frontend/Dockerfile
 
 run:
   web: python -m core.main
-  frontend: serve -s /app/frontend/build -l $PORT
+  worker: serve -s /app/frontend/build -l ${PORT:-3000}

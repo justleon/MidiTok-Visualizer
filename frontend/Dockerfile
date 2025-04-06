@@ -11,8 +11,8 @@ RUN npm run build
 
 
 RUN npm install -g serve
-EXPOSE 3000
-ENV PORT 3000
+EXPOSE 8080
+ENV PORT 8080
 
-CMD ["sh", "-c", "serve -s build -l $PORT"]
+CMD ["sh", "-c", "serve -s build -l ${PORT:-8080}"]
 #CMD ["npm", "run", "dev"]
