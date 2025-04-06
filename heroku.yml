@@ -1,8 +1,6 @@
 build:
   docker:
-    web: backend/Dockerfile
-    worker: frontend/Dockerfile
+    web: Dockerfile
 
 run:
-  web: python -m core.main
-  worker: serve -s /app/frontend/build -l ${PORT:-3000}
+  web: ./start.sh

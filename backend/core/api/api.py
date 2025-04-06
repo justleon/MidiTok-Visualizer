@@ -1,10 +1,12 @@
 import json
 import logging.config
 
+from django.http import FileResponse
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.staticfiles import StaticFiles
 
 from core.api.logging_middleware import LoggingMiddleware, log_config
 from core.api.model import ConfigModel, MusicInformationData
@@ -74,3 +76,13 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
         )
     except Exception as e:
         return JSONResponse(content={"success": False, "data": None, "error": str(e)}, status_code=500)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def read_index():
+    return FileResponse("static/index.html")
+
+@app.get("/{catch_all:path}")
+async def catch_all(catch_all: str):
+    return FileResponse("static/index.html")
