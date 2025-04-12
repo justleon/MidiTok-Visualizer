@@ -8,3 +8,4 @@ Thumbs.db
 .pytest_cache/
 local_settings.py
 logs/
+site/
