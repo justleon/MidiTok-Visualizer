@@ -18,8 +18,14 @@ jobs:
 
       - name: Install Poetry
         run: |
-            curl -sSL https://install.python-poetry.org | python3 -  # Instalacja Poetry
-            echo "::add-path::$(poetry config --list | grep poetry | cut -d= -f2 | tr -d '[:space:]')"
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path "$HOME/.cache/pypoetry/virtualenvs"
 
       - name: Install dependencies
         run: |
