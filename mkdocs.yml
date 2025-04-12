@@ -9,3 +9,5 @@ plugins:
             docstring_options:
               ignore_init_summary: false
               merge_init_into_class: true
+  - autorefs:
+      link_titles: false

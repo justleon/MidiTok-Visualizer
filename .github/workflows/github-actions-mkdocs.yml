@@ -28,6 +28,7 @@ jobs:
           pip install mkdocs-material==9.5.21
           pip install mkdocstrings==0.24.0
           pip install mkdocstrings-python==1.9.0
+          pip install mkdocs-autorefs==1.0.0
 
       - name: Build and deploy documentation
         run: mkdocs gh-deploy --config-file mkdocs.yml --force
