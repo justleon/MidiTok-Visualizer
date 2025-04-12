@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend_new && poetry install && pip install setuptools
+          cd backend_new && poetry install && poetry run pip install setuptools
          
 
       - name: Run tests with unittest
