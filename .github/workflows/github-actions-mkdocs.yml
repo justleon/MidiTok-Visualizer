@@ -2,7 +2,6 @@ name: Build GitHub Pages
 on:
   push:
     branches:
-      - main
       - pr-5
   workflow_dispatch:
 permissions:
@@ -24,6 +23,8 @@ jobs:
           python-version: 3.9
       - run: pip install \
             mkdocs-material
+      - run: pip install mkdocstrings
+      - run: pip install mkdocstrings-python
       - run: mkdocs gh-deploy --config-file mkdocs.yml --force
 
   deploy_mkdocs:

@@ -1,0 +1,30 @@
+name: Python CI
+on:
+  push:
+    branches:
+      - pr-5
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.9'
+
+      - name: Install Poetry
+        run: |
+            curl -sSL https://install.python-poetry.org | python3 -  # Instalacja Poetry
+            echo "::add-path::$(poetry config --list | grep poetry | cut -d= -f2 | tr -d '[:space:]')"
+
+      - name: Install dependencies
+        run: |
+          cd backend_new && poetry install
+
+      - name: Run tests with unittest
+        run: |
+          poetry run python -m unittest discover -s test

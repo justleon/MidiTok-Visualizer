@@ -1,0 +1,31 @@
+default_language_version:
+  python: python3.11.9
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        language: system
+        entry: black
+        args: ["--check"]
+        types: [python]
+      - id: isort
+        name: isort
+        language: system
+        entry: isort
+        args: ["--check", "--diff"]
+        types: [python]
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.9.1  
+    hooks:
+      - id: ruff
+        name: ruff
+        types: [python]
+        args: ["--fix"]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1  
+    hooks:
+      - id: mypy
+        name: mypy
+        args: ["--no-incremental", "--ignore-missing-imports"]
+        types: [python]
