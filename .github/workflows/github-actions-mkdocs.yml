@@ -25,11 +25,13 @@ jobs:
 
       - name: Install documentation packages
         run: |
-          pip install mkdocs-material==9.1.7
-          pip install mkdocstrings==0.22.0
-          pip install mkdocstrings-python==0.8.3
-          pip install griffe==0.25.0
-          pip install mkdocs-autorefs==0.4.1
+          pip install mkdocs==1.6.1
+          pip install mkdocs-material==9.6.11
+          pip install mkdocstrings==0.29.1
+          pip install mkdocstrings-python==1.16.10
+          pip install griffe==1.7.2
+          pip install mkdocs-autorefs==1.4.1
+          pip install mkdocs-get-deps==0.2.0
 
       - name: Build and deploy documentation
         run: |
