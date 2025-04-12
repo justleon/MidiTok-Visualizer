@@ -23,15 +23,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install documentation packages
         run: |
-          pip install mkdocs-material==9.5.21
-          pip install mkdocstrings==0.24.0
-          pip install mkdocstrings-python==1.9.0
-          pip install mkdocs-autorefs==1.0.0
+          pip install mkdocs-material==9.1.7
+          pip install mkdocstrings==0.22.0
+          pip install mkdocstrings-python==0.8.3
+          pip install griffe==0.25.0
+          pip install mkdocs-autorefs==0.4.1
 
       - name: Build and deploy documentation
-        run: mkdocs gh-deploy --config-file mkdocs.yml --force
+        run: |
+          mkdocs build --strict
+          mkdocs gh-deploy --config-file mkdocs.yml --force
 
   deploy_mkdocs:
     needs: build_mkdocs
@@ -40,7 +43,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
           ref: gh-pages
