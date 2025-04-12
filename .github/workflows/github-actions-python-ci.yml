@@ -1,8 +1,10 @@
 name: Python CI
+
 on:
   push:
     branches:
       - pr-5
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,4 +35,6 @@ jobs:
 
       - name: Run tests with unittest
         run: |
+          cd backend_new
+          export PYTHONPATH=$(pwd)
           poetry run python -m unittest discover -s test
