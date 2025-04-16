@@ -24,7 +24,7 @@ def tokenize_midi_file(user_config: ConfigModel, midi_bytes: bytes) -> tuple[Any
         "use_time_signatures": user_config.use_time_signatures,
         "use_sustain_pedals": user_config.use_sustain_pedals,
         "use_pitch_bends": user_config.use_pitch_bends,
-        "nb_tempos": user_config.nb_tempos,
+        "num_tempos": user_config.num_tempos,
         "tempo_range": tuple(user_config.tempo_range),
         "log_tempos": user_config.log_tempos,
         "delete_equal_successive_tempo_changes": user_config.delete_equal_successive_tempo_changes,
@@ -146,7 +146,6 @@ def pitch_to_name(pitch: int) -> str:
     note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
     octave = pitch // 12 - 1
     note = note_names[pitch % 12]
-    print("siena")
     return f"{note}{octave}"
 
 
