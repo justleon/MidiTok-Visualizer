@@ -14,6 +14,8 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 
 function App() {
+  const listSupportPrograms = ['TSD','REMI','MIDILike','Structured','CPWord'];
+
   const [responses, setResponses] = useState<{ file: File, response: ApiResponse | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedTokenizer, setSelectedTokenizer] = useState<string>('PerTok');
@@ -384,11 +386,7 @@ function App() {
                     </div>
 
                     {/* USE PROGRAMS */}
-                    {(selectedTokenizer === 'TSD' ||
-                      selectedTokenizer === 'REMI' ||
-                      selectedTokenizer === 'MIDILike' ||
-                      selectedTokenizer === 'Structured' ||
-                      selectedTokenizer === 'CPWord') && (
+                    {(listSupportPrograms.includes(selectedTokenizer)) && (
                         <div className="form-row">
                           <label>
                             <input type="checkbox" checked={usePrograms} onChange={handleUseProgramsChange} />
@@ -398,7 +396,7 @@ function App() {
                     )}
 
                     {/* PROGRAMS SLIDER */}
-                    {usePrograms && (
+                    {usePrograms && (listSupportPrograms.includes(selectedTokenizer)) && (
                       <>
                         <div className="form-row">
                           <div className="label-container">
