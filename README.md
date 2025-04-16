@@ -63,7 +63,7 @@ Basic run:
 
 ```sh
 cd backend
-poetry shell
+poetry env activate
 poetry install
 python -m core.main
 ```
@@ -99,7 +99,7 @@ npm run test
 Unit tests written with `pytest` can be ran with:
 
 ```sh
-poetry shell
+poetry env activate
 poetry install
 pytest
 ```
