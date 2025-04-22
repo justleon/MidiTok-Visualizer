@@ -11,8 +11,9 @@ from starlette.staticfiles import StaticFiles
 
 from core.api.logging_middleware import LoggingMiddleware, log_config
 from core.api.model import ConfigModel, MusicInformationData
-from core.service.midi_processing import retrieve_information_from_midi, tokenize_midi_file
-from core.service.serializer import TokSequenceEncoder
+#from core.service.midi_processing import retrieve_information_from_midi, tokenize_midi_file
+from core.service.midi.serializer import TokSequenceEncoder
+from core.service.midi.midi_processor import MidiProcessor
 
 logging.config.dictConfig(log_config)
 
@@ -51,7 +52,7 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
         if file.content_type not in ["audio/mid", "audio/midi", "audio/x-mid", "audio/x-midi"]:
             raise HTTPException(status_code=415, detail="Unsupported file type")
         midi_bytes: bytes = await file.read()
-        tokens, notes = tokenize_midi_file(config, midi_bytes)
+        tokens, notes = MidiProcessor.tokenize_midi_file(config, midi_bytes)
         serialized_tokens = json.dumps(tokens, cls=TokSequenceEncoder)
         note_id = 1
         serialized_notes = []
@@ -60,7 +61,7 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
             serialized_notes.append(serialized_track)
             note_id += len(track_notes)
 
-        metrics: MusicInformationData = retrieve_information_from_midi(midi_bytes)
+        metrics: MusicInformationData = MidiProcessor.retrieve_information_from_midi(midi_bytes)
         return JSONResponse(
             content={
                 "success": True,

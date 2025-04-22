@@ -15,7 +15,7 @@ RUN touch README.md
 RUN poetry install --no-root
 #RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --no-root
 COPY core ./core
-COPY tests ./tests
+COPY test ./test
 
 RUN poetry run pytest
 

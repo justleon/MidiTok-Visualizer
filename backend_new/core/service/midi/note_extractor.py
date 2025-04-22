@@ -22,17 +22,18 @@ class NoteExtractor:
                 note_name = self._pitch_to_name(note.pitch)
                 track_notes.append(
                     Note(
-                        note.pitch,
-                        note_name,
-                        note.start,
-                        note.end,
-                        note.velocity
+                        pitch=note.pitch,
+                        name=note_name,
+                        start=note.start,
+                        end=note.end,
+                        velocity=note.velocity
                     )
                 )
             notes.append(track_notes)
         return notes
+
     @staticmethod
-    def _pitch_to_name(self, pitch: int) -> str:
+    def _pitch_to_name(pitch: int) -> str:
         """
         Converts a MIDI pitch to a note name
 

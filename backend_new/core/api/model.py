@@ -37,7 +37,8 @@ class ConfigModel(
     ticks_per_quarter: Annotated[int, Field(ge=24, le=960)]
     max_microtiming_shift: Annotated[float, Field(ge=0, le=1)]
     num_microtiming_bins: Annotated[int, Field(ge=1, le=64)]
-
+    midi_loader_some_param: str = Field(default="default_value")
+    midi_loader_other_param: int = Field(default=0)
     @model_validator(mode="before")
     @classmethod
     def validate_to_json(cls, value):

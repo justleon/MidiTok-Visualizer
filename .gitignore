@@ -9,3 +9,5 @@ Thumbs.db
 local_settings.py
 logs/
 site/
+backend_new/
+backend_newer/
