@@ -15,7 +15,8 @@ RUN poetry run pytest
 
 FROM python:3.11-slim-buster AS runtime
 ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    REACT_APP_API_BASE_URL="https://miditok-visualizer-front-production.up.railway.app"
 COPY --from=builder /app/.venv /app/.venv
 WORKDIR /app
 COPY backend/core ./core
