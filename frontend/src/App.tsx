@@ -327,7 +327,6 @@ function App() {
                     <option value="TSD">TSD</option>
                     <option value="Structured">Structured</option>
                     <option value="CPWord">CPWord</option>
-                    <option value="Octuple">Octuple</option>
                     <option value="PerTok">PerTok</option>
                   </select>
                 </div>
