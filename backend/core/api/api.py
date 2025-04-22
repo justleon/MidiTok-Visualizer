@@ -1,6 +1,6 @@
 import json
 import logging.config
-
+import os
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
@@ -17,15 +17,10 @@ from core.service.serializer import TokSequenceEncoder
 logging.config.dictConfig(log_config)
 
 app = FastAPI()
-
-origins = [
-    "http://localhost:3000",
-    "https://wimu-frontend-ccb0bbc023d3.herokuapp.com",
-    "https://miditok-visualizer-production-frontend.up.railway.app",
-    "https://miditokenizer-4cf444dcffd3.herokuapp.com",
-    "https://miditok-visualizer-front-production.up.railway.app"
-]
-
+react_api_base_url = os.getenv("REACT_APP_API_BASE_URL", "http://localhost:3000")
+origins = []
+if react_api_base_url:
+    origins.append(react_api_base_url)
 
 app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
@@ -48,6 +43,7 @@ def save_to_file(data, filename):  # debug function
 
 @app.post("/process")
 async def process(config: str = Form(...), file: UploadFile = File(...)) -> JSONResponse:
+
     try:
         if file.content_type not in ["audio/mid", "audio/midi", "audio/x-mid", "audio/x-midi"]:
             raise HTTPException(status_code=415, detail="Unsupported file type")
