@@ -196,7 +196,7 @@ function App() {
         use_sustain_pedals: useSustainPedals,
         use_pitch_bends: usePitchBends,
         use_programs: usePrograms,
-        nb_tempos: selectedNbTempos,
+        num_tempos: selectedNbTempos,
         tempo_range: selectedTempoRange,
         log_tempos: logTempos,
         delete_equal_successive_tempo_changes: deleteEqualSuccessiveTempoChanges,

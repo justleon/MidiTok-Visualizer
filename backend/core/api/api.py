@@ -8,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
-
+from fastapi import Form
 from core.api.logging_middleware import LoggingMiddleware, log_config
 from core.api.model import ConfigModel, MusicInformationData
 from core.service.midi_processing import retrieve_information_from_midi, tokenize_midi_file
@@ -47,12 +47,15 @@ def save_to_file(data, filename):  # debug function
 
 
 @app.post("/process")
-async def process(config: ConfigModel = Body(...), file: UploadFile = File(...)) -> JSONResponse:
+async def process(config: str = Form(...), file: UploadFile = File(...)) -> JSONResponse:
     try:
         if file.content_type not in ["audio/mid", "audio/midi", "audio/x-mid", "audio/x-midi"]:
             raise HTTPException(status_code=415, detail="Unsupported file type")
+
+        config_model = ConfigModel(**json.loads(config))
+
         midi_bytes: bytes = await file.read()
-        tokens, notes = tokenize_midi_file(config, midi_bytes)
+        tokens, notes = tokenize_midi_file(config_model, midi_bytes)
         serialized_tokens = json.dumps(tokens, cls=TokSequenceEncoder)
         note_id = 1
         serialized_notes = []
