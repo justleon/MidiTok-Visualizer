@@ -2,6 +2,9 @@ site_name: MidiTok
 theme:
   name: readthedocs
 plugins:
+  - exclude:
+      glob:
+        - Design documentation/*
   - mkdocstrings:
       handlers:
         python:

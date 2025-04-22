@@ -34,6 +34,7 @@ jobs:
           pip install griffe==1.7.2
           pip install mkdocs-autorefs==1.4.1
           pip install mkdocs-get-deps==0.2.0
+          pip install mkdocs-exclude
 
       - name: Build and deploy documentation
         run: |
