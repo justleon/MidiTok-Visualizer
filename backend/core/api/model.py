@@ -21,7 +21,7 @@ class ConfigModel(
     use_time_signatures: StrictBool
     use_sustain_pedals: StrictBool
     use_pitch_bends: StrictBool
-    nb_tempos: NonNegativeInt
+    num_tempos: NonNegativeInt
     tempo_range: Annotated[list[NonNegativeInt], Field(min_length=2, max_length=2)]
     log_tempos: StrictBool
     delete_equal_successive_tempo_changes: StrictBool

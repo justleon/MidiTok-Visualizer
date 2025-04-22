@@ -22,7 +22,8 @@ origins = [
     "http://localhost:3000",
     "https://wimu-frontend-ccb0bbc023d3.herokuapp.com",
     "https://miditok-visualizer-production-frontend.up.railway.app",
-    "https://miditokenizer-4cf444dcffd3.herokuapp.com"
+    "https://miditokenizer-4cf444dcffd3.herokuapp.com",
+    "https://miditok-visualizer-front-production.up.railway.app"
 ]
 
 
