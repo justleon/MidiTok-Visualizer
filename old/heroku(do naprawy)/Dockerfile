@@ -1,8 +1,8 @@
 FROM node:21-alpine AS frontend-builder
 WORKDIR /app/frontend
-COPY ../frontend/package.json frontend/package-lock.json* ./
+COPY ../../frontend/package.json frontend/package-lock.json* ./
 RUN npm install
-COPY ../frontend ./
+COPY ../../frontend ./
 RUN npm run build
 
 FROM python:3.11-buster
@@ -15,11 +15,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY ../backend/pyproject.toml backend/poetry.lock ./
+COPY ../../backend/pyproject.toml backend/poetry.lock ./
 RUN touch README.md
 
 
-COPY ../backend/core ./core
+COPY ../../backend/core ./core
 
 RUN pip install poetry==1.6.1 && \
     poetry config virtualenvs.create false && \

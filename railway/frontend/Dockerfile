@@ -1,7 +1,7 @@
 FROM node:21-alpine AS build
 ENV GENERATE_SOURCEMAP=false
 ENV CI=false
-ENV REACT_APP_API_BASE_URL="https://miditok-visualizer-back-production.up.railway.app"
+ENV REACT_APP_API_BASE_URL="https://${RAILWAY_PUBLIC_DOMAIN}"
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install && npm cache clean --force
