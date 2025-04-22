@@ -16,7 +16,8 @@ import 'react-tabs/style/react-tabs.css';
 function App() {
   const listSupportPrograms = ['TSD','REMI','MIDILike','Structured','CPWord'];
 
-  const [responses, setResponses] = useState<{ file: File, response: ApiResponse | null }[]>([]);
+  // Modified response state to include tokenizer info
+  const [responses, setResponses] = useState<{ file: File, tokenizer: string, response: ApiResponse | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedTokenizer, setSelectedTokenizer] = useState<string>('PerTok');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -172,8 +173,14 @@ function App() {
   const handleUpload = (event: React.FormEvent) => {
     event.preventDefault();
     selectedFiles.forEach((file) => {
-      if (responses.find(res => res.file.name === file.name)) {
-        return; // Avoid processing the same file again
+      // Check if this file+tokenizer combination already exists
+      const existingResponse = responses.find(
+        res => res.file.name === file.name && res.tokenizer === selectedTokenizer
+      );
+
+      if (existingResponse) {
+        console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer} - already processed`);
+        return; // Skip if this file with this tokenizer was already processed
       }
 
       const formData = new FormData();
@@ -215,7 +222,12 @@ function App() {
       })
         .then((response) => response.json())
         .then((data: ApiResponse) => {
-          setResponses((prevResponses) => [...prevResponses, { file, response: data }]);
+          // Add the tokenizer information to the response
+          setResponses((prevResponses) => [...prevResponses, {
+            file,
+            tokenizer: selectedTokenizer,
+            response: data
+          }]);
         })
         .catch((error) => {
           console.log(error);
@@ -236,8 +248,8 @@ function App() {
     }
     return [list];
   }
-  
-  
+
+
   const handleNoteSelect = (note: Note | null) => {
     setSelectedNote(note);
     if (note) {
@@ -249,7 +261,7 @@ function App() {
       setSelectedToken(null);
     }
   };
-  
+
   const handleTokenSelect = (token: Token | null) => {
     setSelectedToken(token);
     if (token) {
@@ -266,6 +278,16 @@ function App() {
     setHoveredToken(token);
   };
 
+  // Group responses by file name
+  const responsesByFile = responses.reduce((acc, res) => {
+    const fileName = res.file.name;
+    if (!acc[fileName]) {
+      acc[fileName] = [];
+    }
+    acc[fileName].push(res);
+    return acc;
+  }, {} as Record<string, typeof responses>);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -278,7 +300,7 @@ function App() {
             MidiTok Visualizer
           </span>
         </div>
-      
+
         <div>
           {uploaderVisible ? (
             <form onSubmit={handleUpload}>
@@ -607,88 +629,104 @@ function App() {
           ) : null}
         </div>
 
-        {responses.length > 0 && (
+        {Object.keys(responsesByFile).length > 0 && (
           <Tabs>
             <TabList>
-              {responses.map((res, index) => (
-                <Tab key={index}>{res.file.name}</Tab> 
+              {/* Create main tabs for files */}
+              {Object.keys(responsesByFile).map((fileName, index) => (
+                <Tab key={index}>{fileName}</Tab>
               ))}
             </TabList>
-            
-            {responses.map((res, index) => (
-              <TabPanel key={index}>
-                {res.response ? (
-                  <>
-                    {/* Section with MusicInfoDisplay and FilePlayback */}
-                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                      <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                        {res.response?.data ? (
-                          <MusicInfoDisplay data={res.response.data.metrics} />
-                        ) : (
-                          res.response?.error
-                        )}
-                      </ErrorBoundary>
-                    </div>
-                    <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                      <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                        {res.response?.data ? <FilePlayback file={res.file} /> : null}
-                      </ErrorBoundary>
-                    </div>
 
-                    {/* Grid layout */}
-                    <div className="grid-layout">
-                      {/* LEFT COLUMN: DataDisplay */}
-                      <div className="left-column">
-                        <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                          {res.response?.data ? (
-                            <DataDisplay
-                              data={res.response.data.tokens}
-                              hoveredNote={hoveredNote}
-                              selectedNote={selectedNote}
-                              onTokenHover={handleTokenHover}
-                              onTokenSelect={handleTokenSelect}
-                              hoveredToken={hoveredToken}
-                              selectedToken={selectedToken}
-                            />
-                          ) : (
-                            res.response?.error
-                          )}
-                        </ErrorBoundary>
-                      </div>
+            {/* For each file, create a tab panel with nested tabs for tokenizers */}
+            {Object.entries(responsesByFile).map(([fileName, fileResponses], fileIndex) => (
+              <TabPanel key={fileIndex}>
+                <Tabs>
+                  <TabList>
+                    {/* Create sub-tabs for each tokenizer used on this file */}
+                    {fileResponses.map((res, tokenizerIndex) => (
+                      <Tab key={tokenizerIndex}>{res.tokenizer}</Tab>
+                    ))}
+                  </TabList>
 
-                      {/* RIGHT COLUMN: PianoRollDisplay */}
-                      <div className="right-column">
-                        <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                          {res.response?.data && res.response.data.notes.length > 0 ? (
-                            <Tabs>
-                              <TabList>
-                                {res.response.data.notes.map((_, idx) => (
-                                  <Tab key={idx}>Track {idx + 1}</Tab>
-                                ))}
-                              </TabList>
-                              {res.response.data.notes.map((notes, idx) => (
-                                <TabPanel key={idx}>
-                                  <PianoRollDisplay
-                                    notes={res.response?.data?.notes ?? [[]]}
-                                    onNoteHover={handleNoteHover}
-                                    onNoteSelect={handleNoteSelect}
+                  {/* Content for each tokenizer tab */}
+                  {fileResponses.map((res, tokenizerIndex) => (
+                    <TabPanel key={tokenizerIndex}>
+                      {res.response ? (
+                        <>
+                          {/* Section with MusicInfoDisplay and FilePlayback */}
+                          <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                            <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                              {res.response?.data ? (
+                                <MusicInfoDisplay data={res.response.data.metrics} />
+                              ) : (
+                                res.response?.error
+                              )}
+                            </ErrorBoundary>
+                          </div>
+                          <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+                            <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                              {res.response?.data ? <FilePlayback file={res.file} /> : null}
+                            </ErrorBoundary>
+                          </div>
+
+                          {/* Grid layout */}
+                          <div className="grid-layout">
+                            {/* LEFT COLUMN: DataDisplay */}
+                            <div className="left-column">
+                              <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                                {res.response?.data ? (
+                                  <DataDisplay
+                                    data={res.response.data.tokens}
+                                    hoveredNote={hoveredNote}
+                                    selectedNote={selectedNote}
+                                    onTokenHover={handleTokenHover}
+                                    onTokenSelect={handleTokenSelect}
                                     hoveredToken={hoveredToken}
                                     selectedToken={selectedToken}
-                                    track={idx}
                                   />
-                                </TabPanel>
-                              ))}
-                            </Tabs>
-                          ) : (
-                            res.response?.error
-                          )}
-                        </ErrorBoundary>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <p>No response data available</p>
-                )}
+                                ) : (
+                                  res.response?.error
+                                )}
+                              </ErrorBoundary>
+                            </div>
+
+                            {/* RIGHT COLUMN: PianoRollDisplay */}
+                            <div className="right-column">
+                              <ErrorBoundary fallback={<p>Something went wrong</p>}>
+                                {res.response?.data && res.response.data.notes.length > 0 ? (
+                                  <Tabs>
+                                    <TabList>
+                                      {res.response.data.notes.map((_, idx) => (
+                                        <Tab key={idx}>Track {idx + 1}</Tab>
+                                      ))}
+                                    </TabList>
+                                    {res.response.data.notes.map((notes, idx) => (
+                                      <TabPanel key={idx}>
+                                        <PianoRollDisplay
+                                          notes={res.response?.data?.notes ?? [[]]}
+                                          onNoteHover={handleNoteHover}
+                                          onNoteSelect={handleNoteSelect}
+                                          hoveredToken={hoveredToken}
+                                          selectedToken={selectedToken}
+                                          track={idx}
+                                        />
+                                      </TabPanel>
+                                    ))}
+                                  </Tabs>
+                                ) : (
+                                  res.response?.error
+                                )}
+                              </ErrorBoundary>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p>No response data available</p>
+                      )}
+                    </TabPanel>
+                  ))}
+                </Tabs>
               </TabPanel>
             ))}
           </Tabs>
