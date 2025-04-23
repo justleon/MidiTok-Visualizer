@@ -1,6 +1,6 @@
-# Note exctractor Class
+# midi_processing Class
 
-::: backend_new.core.service.midi.note_extractor
+::: backend.core.service.midi_processing
     handler: python
     options:
       show_root_heading: false
