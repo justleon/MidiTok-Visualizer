@@ -5,7 +5,7 @@ on:
     branches:
       - pr-5
     paths:
-      - 'backend_new/**'
+      - 'backend/**'
 
 jobs:
   build:
