@@ -173,15 +173,15 @@ function App() {
   const handleUpload = (event: React.FormEvent) => {
     event.preventDefault();
     selectedFiles.forEach((file) => {
-      // Check if this file+tokenizer combination already exists
-      const existingResponse = responses.find(
-        res => res.file.name === file.name && res.tokenizer === selectedTokenizer
-      );
+    // Check if this file+tokenizer combination already exists
+    const existingResponse = responses.find(
+      res => res.file.name === file.name && res.tokenizer === selectedTokenizer
+    );
 
-      if (existingResponse) {
-        console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer} - already processed`);
-        return; // Skip if this file with this tokenizer was already processed
-      }
+    if (existingResponse) {
+      console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer} - already processed`);
+      return; // Skip if this file with this tokenizer was already processed
+    }
 
       const formData = new FormData();
       const configData = {
@@ -310,6 +310,34 @@ function App() {
                   {loading ? <Spinner /> : 'Upload'}
                 </button>
               </div>
+                {/* Show currently selected files */}
+              {selectedFiles.length > 0 && (
+                <div className="selected-files">
+                  <h4>Selected Files:</h4>
+                  <ul>
+                    {selectedFiles.map((file, index) => (
+                      <li key={index}>
+                        {file.name}
+                        {responses.some(res => res.file.name === file.name && res.tokenizer === selectedTokenizer) && (
+                          <span style={{ color: 'green', marginLeft: '10px' }}>
+                            (Already processed with {selectedTokenizer})
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFiles(selectedFiles.filter(f => f !== file))}
+                          style={{ marginLeft: '10px' }}
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+
+
               <div className="tokenizerConfigContainer">
                 <button
                   type="button"

@@ -14,3 +14,8 @@ plugins:
               #merge_init_into_class: true
   - autorefs:
       link_titles: false
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.snippets
