@@ -13,11 +13,11 @@ Dodano w Frontendzie możliwość tokenizacji jednego pliku różnymi tokenizara
 Dodano w nomwym backendzie klasy tokenizer_factory oraz tokenizer_config, midi_processing
 Przygotowano wstępną canve w react, umożliwiającą tworzenie oraz modyfikacje bloczków, jak również wyciągnięto informacje o pozycji oraz wielkości bloczków, które w przyszłości zostano przekształcone w Midi  
 ## Tydzień 6 (21.04 - 27.04):Rozpoczęcie pracy z Frontendem
-Dodano deploy na railway(https://miditok-visualizer-front-production.up.railway.app/), jak również poprawiono api w którym występował problem przy aplikacji zdeployowanej. Problem dotyczy konstrukcji tworzenia zapytania process, gdzie w backendzie przekazywano w jednym request jednocześnie body JSON oraz plik, co w Fastapi opartym na pydantic nie jest wspierane i zgodne z zasadami. Lokalnie opcja działała, dlatego że użyto Uvicorn. 
-Usunięto design propsale z dokumentacji. Dodano dokumentacje dotyczącą deploy.
-Dodano test dla tokenizera PERTOK, który w backendzie wywołuje błąd -name 'current_note_id' is not defined. Błąd został naprawiony w nowszej wersji backendu.
-Dodano w Frontendzie możliwość tokenizacji jednego pliku, różnymi tokenizerami bez wymogu każdorazowego wysyłania pliku.
-W tym tygodniu cały czas rozwijany jest backend.
+- Dodano deploy na railway(https://miditok-visualizer-front-production.up.railway.app/), jak również poprawiono api w którym występował problem przy aplikacji zdeployowanej. Problem dotyczy konstrukcji tworzenia zapytania process, gdzie w backendzie przekazywano w jednym request jednocześnie body JSON oraz plik, co w Fastapi opartym na pydantic nie jest wspierane i zgodne z zasadami. Lokalnie opcja działała, dlatego że użyto Uvicorn. 
+- Usunięto design propsale z dokumentacji. Dodano dokumentacje dotyczącą deploy.
+- Dodano test dla tokenizera PERTOK, który w backendzie wywołuje błąd -name 'current_note_id' is not defined. Błąd został naprawiony w nowszej wersji backendu.
+- Dodano w Frontendzie możliwość tokenizacji jednego pliku, różnymi tokenizerami bez wymogu każdorazowego wysyłania pliku.
+- W tym tygodniu cały czas rozwijany jest backend.
 ## Tydzień 7 (28.04 - 04.05):    *Majówka*
 ## Tydzień 8 (05.05 - 11.05):Dalsze prace nad Frontedem:
 ## Tydzień 9 (12.05 - 18.05): Nowa funkcja
