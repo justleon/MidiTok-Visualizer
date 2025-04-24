@@ -33,11 +33,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend_new && poetry install && poetry run pip install setuptools
+          cd backend && poetry install && poetry run pip install setuptools
          
 
       - name: Run tests with unittest
         run: |
-          cd backend_new
+          cd backend
           export PYTHONPATH=$(pwd)
           poetry run python -m unittest discover -s test
