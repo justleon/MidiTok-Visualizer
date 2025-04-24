@@ -46,7 +46,7 @@ async def process(config: str = Form(...), file: UploadFile = File(...)) -> JSON
 
     try:
         if file.content_type not in ["audio/mid", "audio/midi", "audio/x-mid", "audio/x-midi"]:
-            raise HTTPException(status_code=415, detail="Unsupported file type")
+            raise HTTPException(status_code=415, detail="Unsupported file type!")
 
         config_model = ConfigModel(**json.loads(config))
 
