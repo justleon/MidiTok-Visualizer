@@ -199,7 +199,7 @@ def add_notes_id(tokens, notes, tokenizer):
             for compound_token in token_list.events:
                 if compound_token[0].value == "Note":
                     for token in compound_token:
-                        if token.type_ == "Pitch":
+                        if token.type_ in ["Pitch", "PitchDrum"]:
                             i += 1
                             current_note_id = notes_ids[i] + 1
                             current_track_id = note_to_track[i]
@@ -251,7 +251,7 @@ def add_notes_id(tokens, notes, tokenizer):
             for compound_token in token_list.events:
                 if compound_token[0].type_ in ["Pitch", "PitchDrum"]:
                     for token in compound_token:
-                        if token.type_ == "Pitch":
+                        if token.type_ in ["Pitch", "PitchDrum"]:
                             i += 1
                             current_note_id = notes_ids[i] + 1
                             current_track_id = note_to_track[i]
