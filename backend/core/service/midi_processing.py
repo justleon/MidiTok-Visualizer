@@ -150,9 +150,9 @@ def pitch_to_name(pitch: int) -> str:
     note = note_names[pitch % 12]
     return f"{note}{octave}"
 
-current_note_id = None
+# Assigns tokens to notes
 def add_notes_id(tokens, notes, tokenizer):
-    global current_note_id
+    current_note_id = None
     notes_ids = []
     i = 0
     tracks_len = []
@@ -268,6 +268,7 @@ def add_notes_id(tokens, notes, tokenizer):
 
 
 def add_notes_id_use_programs(tokens, notes, tokenizer):
+    current_note_id = None
     notes_ids = []
     i = 0
     tracks_len = []
