@@ -20,6 +20,7 @@ export function TokenTypeToColor(type: string): string {
     case 'Tempo': return 'lightpink';
     case 'Rest': return 'palegreen';
     case 'Pitch': return 'lightblue';
+    case 'PitchDrum': return 'lightskyblue';
     case 'NoteOn': return 'peachpuff';
     case 'Velocity': return 'lightcoral';
     case 'Duration': return 'lightgoldenrodyellow';
@@ -79,7 +80,13 @@ const TokenBlock: React.FC<TokenBlockProps> = memo(
         onClick={handleClick}
       >
         <div className="token-block-content">
-          <strong>{item.type === 'MicroTiming' ? 'Micro\nTiming' : item.type}</strong>
+          <strong>
+              {
+                  item.type === 'MicroTiming' ? 'Micro\nTiming'
+                : item.type === 'PitchDrum' ? 'Pitch\nDrum'
+                : item.type
+              }
+          </strong>
         </div>
       </div>
     );
