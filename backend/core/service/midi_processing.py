@@ -174,7 +174,7 @@ def add_notes_id(tokens, notes, tokenizer):
         current_track_id = 0
         for token_list in tokens:
             for token in token_list.events:
-                if token.type_ == "Pitch":
+                if token.type_ in ["Pitch", "PitchDrum"]:
                     i += 1
                     current_note_id = notes_ids[i] + 1
                     current_track_id = note_to_track[i]
