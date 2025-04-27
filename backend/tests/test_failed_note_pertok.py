@@ -77,5 +77,6 @@ def test_add_notes_id_should_fail_for_example2_mid(midi_bytes, user_config):
     tokens = tokenizer(midi)
     notes = midi_to_notes(midi)
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception) as e_info:
         add_notes_id(tokens, notes, user_config.tokenizer)
+    print(f"Raised exception: {e_info.value}")
