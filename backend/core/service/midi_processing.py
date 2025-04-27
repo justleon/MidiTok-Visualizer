@@ -11,6 +11,8 @@ from mido import MidiFile as MidoMidiFile
 from core.api.model import BasicInfoData, ConfigModel, MetricsData, MusicInformationData, Note
 from core.service.tokenizers.tokenizer_factory import TokenizerFactory
 
+import warnings
+
 
 def tokenize_midi_file(user_config: ConfigModel, midi_bytes: bytes) -> tuple[Any, list[list[Note]]]:
     tokenizer_params = {
@@ -148,7 +150,7 @@ def pitch_to_name(pitch: int) -> str:
     note = note_names[pitch % 12]
     return f"{note}{octave}"
 
-
+current_note_id = None
 def add_notes_id(tokens, notes, tokenizer):
     global current_note_id
     notes_ids = []
@@ -180,7 +182,7 @@ def add_notes_id(tokens, notes, tokenizer):
                     token.track_id = current_track_id
                 elif token.type_ in ["Velocity", "Duration", "MicroTiming"]:
                     if current_note_id is None:
-                        print("Warning: current_note_id is None!")
+                        warnings.warn("Warning: current_note_id is None!")
                         continue
                     if current_note_id is not None:
                         token.note_id = current_note_id
