@@ -220,7 +220,7 @@ def add_notes_id(tokens, notes, tokenizer):
         i = -1
         for token_list in tokens:
             for token in token_list.events:
-                if token.type_ == "NoteOn":
+                if token.type_ in ["NoteOn", "DrumOn"]:
                     i += 1
                     current_note_id = notes_ids[i] + 1
                     current_track_id = note_to_track[i]
@@ -231,7 +231,7 @@ def add_notes_id(tokens, notes, tokenizer):
                     if current_note_id:
                         token.note_id = current_note_id
                         token.track_id = current_track_id
-                elif token.type_ == "NoteOff":
+                elif token.type_ in ["NoteOff", "DrumOff"]:
                     if token.value in active_notes:
                         token.note_id = active_notes.pop(token.value)
                         token.track_id = current_track_id
