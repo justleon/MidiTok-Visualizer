@@ -33,12 +33,14 @@ def tokenize_midi_file(user_config: ConfigModel, midi_bytes: bytes) -> tuple[Any
         "sustain_pedal_duration": user_config.sustain_pedal_duration,
         "pitch_bend_range": user_config.pitch_bend_range,
         "delete_equal_successive_time_sig_changes": user_config.delete_equal_successive_time_sig_changes,
-        # added for pertok
+        # added for PerTok
         "use_programs": user_config.use_programs,
         "use_microtiming": user_config.use_microtiming,
         "ticks_per_quarter": user_config.ticks_per_quarter,
         "max_microtiming_shift": user_config.max_microtiming_shift,
         "num_microtiming_bins": user_config.num_microtiming_bins,
+        # added for MMM
+        "base_tokenizer": user_config.base_tokenizer,
         # TODO: dynamic config preparation as not all tokenizers are compatible with program parameters
         # "programs": list(range(user_config.programs[0], user_config.programs[1])),
         # "one_token_stream_for_programs": user_config.one_token_stream_for_programs,
@@ -54,7 +56,7 @@ def tokenize_midi_file(user_config: ConfigModel, midi_bytes: bytes) -> tuple[Any
     tokens = tokenizer(midi)
     notes = midi_to_notes(midi)
     if not user_config.use_programs:
-        tokens = add_notes_id(tokens, notes, user_config.tokenizer)
+        tokens = add_notes_id(tokens, notes, user_config.tokenizer, user_config.base_tokenizer)
     else:
         tokens = add_notes_id_use_programs(tokens, notes, user_config.tokenizer)
 
@@ -151,7 +153,8 @@ def pitch_to_name(pitch: int) -> str:
     return f"{note}{octave}"
 
 # Assigns tokens to notes
-def add_notes_id(tokens, notes, tokenizer):
+# Note: base_tokenizer is used only by MMM
+def add_notes_id(tokens, notes, tokenizer, base_tokenizer=None):
     notes_ids = []
     i = 0
     tracks_len = []
@@ -179,6 +182,8 @@ def add_notes_id(tokens, notes, tokenizer):
     elif tokenizer == "MuMIDI":
         tokens = _add_events_to_mumidi(tokens)
         return _add_notes_id_mumidi(tokens, notes_ids, note_to_track)
+    elif tokenizer == "MMM":
+        return _add_notes_id_mmm(tokens, notes_ids, note_to_track, base_tokenizer)
     else: warnings.warn("Unknown tokenizer. Notes' ids will not be added!")
 
 def _add_notes_id_general(tokens, notes_ids, note_to_track):
@@ -304,6 +309,59 @@ def _add_notes_id_mumidi(tokens, notes_ids, note_to_track):
             else:
                 token.note_id = None
                 token.track_id = current_track_id
+    return tokens
+
+def _add_notes_id_mmm(tokens, notes_ids, note_to_track, base_tokenizer):
+    if base_tokenizer is None:
+        raise Exception("MMM tokenizers must have a specified base tokenizer (in the 4th argument)!")
+    current_note_id = None
+    i = -1
+    current_track_id = 0
+    if base_tokenizer == "MIDILike":
+        active_notes = {}
+        for token in tokens.events:
+            if token.type_ in ["NoteOn", "DrumOn"]:
+                i += 1
+                current_note_id = notes_ids[i] + 1
+                current_track_id = note_to_track[i]
+                active_notes[token.value] = current_note_id
+                token.note_id = current_note_id
+                token.track_id = current_track_id
+            elif token.type_ == "Velocity":
+                if current_note_id:
+                    token.note_id = current_note_id
+                    token.track_id = current_track_id
+            elif token.type_ in ["NoteOff", "DrumOff"]:
+                if token.value in active_notes:
+                    token.note_id = active_notes.pop(token.value)
+                    token.track_id = current_track_id
+                else:
+                    token.note_id = None
+                    token.track_id = current_track_id
+                current_note_id = None
+            else:
+                token.note_id = None
+                token.track_id = current_track_id
+    elif base_tokenizer in ["REMI", "TSD"]:
+        for token in tokens.events:
+            if token.type_ in ["Pitch", "PitchDrum"]:
+                i += 1
+                current_note_id = notes_ids[i] + 1
+                current_track_id = note_to_track[i]
+                token.note_id = current_note_id
+                token.track_id = current_track_id
+            elif token.type_ in ["Velocity", "Duration"]:
+                if current_note_id is None:
+                    warnings.warn("Warning: current_note_id is None!")
+                    continue
+                if current_note_id is not None:
+                    token.note_id = current_note_id
+                    token.track_id = current_track_id
+            else:
+                token.note_id = None
+                token.track_id = current_track_id
+    else: raise Exception(f"{base_tokenizer} is NOT a supported base tokenizer for MMM!")
+
     return tokens
 
 # MuMIDI tokenizer does not have the events attribute assigned by MIDITok's library.

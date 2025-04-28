@@ -32,11 +32,15 @@ class ConfigModel(
     programs: Optional[Annotated[list[int], Field(min_length=2, max_length=2)]]
     one_token_stream_for_programs: Optional[StrictBool]
     program_changes: Optional[StrictBool]
-    # added for pertok
+    # added for PerTok
     use_microtiming: StrictBool
     ticks_per_quarter: Annotated[int, Field(ge=24, le=960)]
     max_microtiming_shift: Annotated[float, Field(ge=0, le=1)]
     num_microtiming_bins: Annotated[int, Field(ge=1, le=64)]
+    # added for MMM
+    base_tokenizer: Literal[
+        'MIDILike', 'TSD', 'REMI'
+    ] | None
 
     @model_validator(mode="before")
     @classmethod
