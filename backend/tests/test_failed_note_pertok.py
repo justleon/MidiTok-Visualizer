@@ -40,7 +40,8 @@ def user_config():
         ticks_per_quarter=480,
         max_microtiming_shift=0.0,
         num_microtiming_bins=32,
-        tokenizer="PerTok"
+        tokenizer="PerTok",
+        base_tokenizer=None,
     )
 
 
@@ -67,7 +68,8 @@ def test_add_notes_id_should_fail_for_example2_mid(midi_bytes, user_config):
         use_microtiming=user_config.use_microtiming,
         ticks_per_quarter=user_config.ticks_per_quarter,
         max_microtiming_shift=user_config.max_microtiming_shift,
-        num_microtiming_bins=user_config.num_microtiming_bins
+        num_microtiming_bins=user_config.num_microtiming_bins,
+        base_tokenizer=None,
     )
 
     factory = TokenizerFactory()
