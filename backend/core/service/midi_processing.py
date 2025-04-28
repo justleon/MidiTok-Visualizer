@@ -169,39 +169,45 @@ def add_notes_id(tokens, notes, tokenizer):
         current_track_id += 1
 
     if tokenizer in ["REMI", "PerTok", "Structured", "TSD"]:
-        current_note_id = None
-        i = -1
-        current_track_id = 0
-        for token_list in tokens:
-            for token in token_list.events:
-                if token.type_ in ["Pitch", "PitchDrum"]:
-                    i += 1
-                    current_note_id = notes_ids[i] + 1
-                    current_track_id = note_to_track[i]
+        return _add_notes_id_general(tokens, notes_ids, note_to_track)
+    elif tokenizer == "CPWord":
+        return _add_notes_id_cpword(tokens, notes_ids, note_to_track)
+    elif tokenizer == "MIDILike":
+        return _add_notes_id_midilike(tokens, notes_ids, note_to_track)
+    elif tokenizer == "Octuple":
+        return _add_notes_id_octuple(tokens, notes_ids, note_to_track)
+    elif tokenizer == "MuMIDI":
+        tokens = _add_events_to_mumidi(tokens)
+        return _add_notes_id_mumidi(tokens, notes_ids, note_to_track)
+    else: warnings.warn("Unknown tokenizer. Notes' ids will not be added!")
+
+def _add_notes_id_general(tokens, notes_ids, note_to_track):
+    current_note_id = None
+    i = -1
+    current_track_id = 0
+    for token_list in tokens:
+        for token in token_list.events:
+            if token.type_ in ["Pitch", "PitchDrum"]:
+                i += 1
+                current_note_id = notes_ids[i] + 1
+                current_track_id = note_to_track[i]
+                token.note_id = current_note_id
+                token.track_id = current_track_id
+            elif token.type_ in ["Velocity", "Duration", "MicroTiming"]:
+                if current_note_id is None:
+                    warnings.warn("Warning: current_note_id is None!")
+                    continue
+                if current_note_id is not None:
                     token.note_id = current_note_id
                     token.track_id = current_track_id
-                elif token.type_ in ["Velocity", "Duration", "MicroTiming"]:
-                    if current_note_id is None:
-                        warnings.warn("Warning: current_note_id is None!")
-                        continue
-                    if current_note_id is not None:
-                        token.note_id = current_note_id
-                        token.track_id = current_track_id
-                else:
-                    token.note_id = None
-                    token.track_id = current_track_id
-        return tokens
+            else:
+                token.note_id = None
+                token.track_id = current_track_id
+    return tokens
 
-    elif tokenizer == "CPWord": return add_notes_id_cpword(tokens, notes_ids, note_to_track, current_track_id)
-    elif tokenizer == "MIDILike": return add_notes_id_midilike(tokens, notes_ids, note_to_track, current_track_id)
-    elif tokenizer == "Octuple": return add_notes_id_octuple(tokens, notes_ids, note_to_track, current_track_id)
-    elif tokenizer == "MuMIDI":
-        tokens = add_events_to_mumidi(tokens)
-
-        return add_notes_id_mumidi(tokens, notes_ids, note_to_track, current_track_id)
-
-def add_notes_id_cpword(tokens, notes_ids, note_to_track, current_track_id):
+def _add_notes_id_cpword(tokens, notes_ids, note_to_track):
     i = -1
+    current_track_id = 0
     for token_list in tokens:
         current_note_id = None
         for compound_token in token_list.events:
@@ -222,9 +228,10 @@ def add_notes_id_cpword(tokens, notes_ids, note_to_track, current_track_id):
                         token.track_id = current_track_id
     return tokens
 
-def add_notes_id_midilike(tokens, notes_ids, note_to_track, current_track_id):
+def _add_notes_id_midilike(tokens, notes_ids, note_to_track):
     active_notes = {}
     current_note_id = None
+    current_track_id = 0
     i = -1
     for token_list in tokens:
         for token in token_list.events:
@@ -252,8 +259,9 @@ def add_notes_id_midilike(tokens, notes_ids, note_to_track, current_track_id):
                 token.track_id = current_track_id
     return tokens
 
-def add_notes_id_octuple(tokens, notes_ids, note_to_track, current_track_id):
+def _add_notes_id_octuple(tokens, notes_ids, note_to_track):
     i = -1
+    current_track_id = 0
     for token_list in tokens:
         current_note_id = None
         for compound_token in token_list.events:
@@ -274,7 +282,7 @@ def add_notes_id_octuple(tokens, notes_ids, note_to_track, current_track_id):
                         token.track_id = current_track_id
     return tokens
 
-def add_notes_id_mumidi(tokens, notes_ids, note_to_track, current_track_id):
+def _add_notes_id_mumidi(tokens, notes_ids, note_to_track):
     current_note_id = None
     i = -1
     current_track_id = 0
@@ -286,7 +294,7 @@ def add_notes_id_mumidi(tokens, notes_ids, note_to_track, current_track_id):
                 current_track_id = note_to_track[i]
                 token.note_id = current_note_id
                 token.track_id = current_track_id
-            elif token.type_ in ["Velocity", "Duration"]:  # , "BarPosEnc", "PositionPosEnc"]:
+            elif token.type_ in ["Velocity", "Duration"]:
                 if current_note_id is None:
                     warnings.warn("Warning: current_note_id is None!")
                     continue
@@ -301,7 +309,7 @@ def add_notes_id_mumidi(tokens, notes_ids, note_to_track, current_track_id):
 # MuMIDI tokenizer does not have the events attribute assigned by MIDITok's library.
 # Since it is the main source of information in this app, the events need to be created manually.
 # This can be achieved by reading the information from the tokens attribute instead.
-def add_events_to_mumidi(tokens):
+def _add_events_to_mumidi(tokens):
     for token_list in tokens.tokens:
         event_list = []
         for token in token_list:
