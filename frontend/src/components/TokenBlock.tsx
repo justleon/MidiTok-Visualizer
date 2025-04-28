@@ -32,6 +32,8 @@ export function TokenTypeToColor(type: string): string {
     case 'MicroTiming': return 'plum';
     case 'Program': return 'lightseagreen'; 
     case 'Ignore': return 'white';
+    case 'PositionPosEnc': return 'lavenderblush';
+    case 'BarPosEnc': return 'lightsteelblue';
     default: return 'white';
   }
 }
