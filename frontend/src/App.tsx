@@ -20,6 +20,7 @@ function App() {
   const [responses, setResponses] = useState<{ file: File, tokenizer: string, response: ApiResponse | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedTokenizer, setSelectedTokenizer] = useState<string>('PerTok');
+  const [selectedBaseTokenizer, setSelectedBaseTokenizer] = useState<string>('REMI');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedPitchRange, setSelectedPitchRange] = useState<number[]>([21, 109]);
   const [selectedVelocityBins, setSelectedVelocityBins] = useState<number>(32);
@@ -64,6 +65,10 @@ function App() {
 
   const handleTokenizerChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTokenizer(event.target.value);
+  };
+
+  const handleBaseTokenizerChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedBaseTokenizer(event.target.value);
   };
 
   const handlePitchRangeChange = (newValues: number[]) => {
@@ -210,6 +215,7 @@ function App() {
         ticks_per_quarter: selectedTicksPerQuarter,
         max_microtiming_shift: selectedMaxMicrotimingShift,
         num_microtiming_bins: selectedNumMicrotimingBins,
+        base_tokenizer: selectedBaseTokenizer,
       };
       formData.append('file', file);
       formData.append('config', JSON.stringify(configData));
@@ -357,6 +363,7 @@ function App() {
                     <option value="CPWord">CPWord</option>
                     <option value="Octuple">Octuple</option>
                     <option value="MuMIDI">MuMIDI</option>
+                    <option value="MMM">MMM</option>
                     <option value="PerTok">PerTok</option>
                   </select>
                 </div>
@@ -365,6 +372,21 @@ function App() {
               {showTokenizerConfig && (
                 <>
                   <div className="tokenizerConfig">
+
+                    {/* BASE TOKENIZER USED BY MMM */}
+                    {selectedTokenizer === 'MMM' && (
+                        <div className="form-row baseTokenizerSelectContainer">
+                          <label htmlFor="baseTokenizerSelectLabel">Base Tokenizer: </label>
+                          <div>
+                            <select id="baseTokenizerSelect" value={selectedBaseTokenizer} onChange={handleBaseTokenizerChange}>
+                              <option value="REMI">REMI</option>
+                              <option value="MIDILike">MIDI-like</option>
+                              <option value="TSD">TSD</option>
+                            </select>
+                          </div>
+                        </div>
+                    )}
+
                     {/* PITCH RANGE */}
                     <div className="form-row">
                       <div className="label-container">

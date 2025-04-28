@@ -32,8 +32,9 @@ export function TokenTypeToColor(type: string): string {
     case 'MicroTiming': return 'plum';
     case 'Program': return 'lightseagreen'; 
     case 'Ignore': return 'white';
-    case 'PositionPosEnc': return 'lavenderblush';
-    case 'BarPosEnc': return 'lightsteelblue';
+    case 'PositionPosEnc': return 'lavenderblush'; // MuMIDI
+    case 'BarPosEnc': return 'lightsteelblue'; // MuMIDI
+    case 'Track': return 'deeppink'; // MMM
     default: return 'white';
   }
 }
