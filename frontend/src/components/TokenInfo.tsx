@@ -24,21 +24,23 @@ const TokenInfo: React.FC<DataDisplayProps> = ({ token, heading }) => {
           <div>
             <strong>Value:</strong> {token.value}
           </div>
-          <div>
+          { token.time !== -1 && <div>
             <strong>Time:</strong> {token.time}
-          </div>
+          </div>}
           <div>
             <strong>Program:</strong> {token.program}
           </div>
-          <div>
+          {/* desc tends to just display value
+          Since the default of desc is 0 we have to make sure it's not the appropriate value before hiding it */}
+          { (token.desc != "0" || token.value == "0") && <div>
             <strong>Desc:</strong> {token.desc}
-          </div>
-          <div>
+          </div>}
+          { token.note_id !== null && <div>
             <strong>Note ID:</strong> {token.note_id}
-          </div>
-          <div>
+          </div>}
+          { token.track_id !== null && <div>
             <strong>Track:</strong> {isNaN(Number(token.track_id)) ? token.track_id : Number(token.track_id) + 1}
-          </div>
+          </div>}
         </div>
       ) : (
         <div className="token-info-placeholder">
