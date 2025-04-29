@@ -17,7 +17,7 @@ function App() {
   const listSupportPrograms = ['TSD','REMI','MIDILike','Structured','CPWord'];
 
   // Modified response state to include tokenizer info
-  const [responses, setResponses] = useState<{ file: File, tokenizer: string, response: ApiResponse | null }[]>([]);
+  const [responses, setResponses] = useState<{ file: File, tokenizer: string, base_tokenizer: string, response: ApiResponse | null }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedTokenizer, setSelectedTokenizer] = useState<string>('PerTok');
   const [selectedBaseTokenizer, setSelectedBaseTokenizer] = useState<string>('REMI');
@@ -180,11 +180,12 @@ function App() {
     selectedFiles.forEach((file) => {
     // Check if this file+tokenizer combination already exists
     const existingResponse = responses.find(
-      res => res.file.name === file.name && res.tokenizer === selectedTokenizer
+      res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer != "MMM" || res.base_tokenizer === selectedBaseTokenizer)
     );
 
     if (existingResponse) {
-      console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer} - already processed`);
+      let baseTokenizerMessage = selectedTokenizer != "MMM" ? "" : ' and base tokenizer '+ selectedBaseTokenizer;
+      console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer}${baseTokenizerMessage} - already processed`);
       return; // Skip if this file with this tokenizer was already processed
     }
 
@@ -232,6 +233,7 @@ function App() {
           setResponses((prevResponses) => [...prevResponses, {
             file,
             tokenizer: selectedTokenizer,
+            base_tokenizer: selectedBaseTokenizer,
             response: data
           }]);
         })
@@ -324,9 +326,9 @@ function App() {
                     {selectedFiles.map((file, index) => (
                       <li key={index}>
                         {file.name}
-                        {responses.some(res => res.file.name === file.name && res.tokenizer === selectedTokenizer) && (
+                        {responses.some(res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer != "MMM" || res.base_tokenizer === selectedBaseTokenizer)) && (
                           <span style={{ color: 'green', marginLeft: '10px' }}>
-                            (Already processed with {selectedTokenizer})
+                            (Already processed with {selectedTokenizer}{selectedTokenizer === "MMM" ? " [base "+selectedBaseTokenizer+"] " : ""})
                           </span>
                         )}
                         <button
@@ -696,7 +698,7 @@ function App() {
                   <TabList>
                     {/* Create sub-tabs for each tokenizer used on this file */}
                     {fileResponses.map((res, tokenizerIndex) => (
-                      <Tab key={tokenizerIndex}>{res.tokenizer}</Tab>
+                      <Tab key={tokenizerIndex}>{res.tokenizer}{res.tokenizer === "MMM" ? " ["+res.base_tokenizer+"]" : ""}</Tab>
                     ))}
                   </TabList>
 
