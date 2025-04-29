@@ -180,11 +180,11 @@ function App() {
     selectedFiles.forEach((file) => {
     // Check if this file+tokenizer combination already exists
     const existingResponse = responses.find(
-      res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer != "MMM" || res.base_tokenizer === selectedBaseTokenizer)
+      res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer !== "MMM" || res.base_tokenizer === selectedBaseTokenizer)
     );
 
     if (existingResponse) {
-      let baseTokenizerMessage = selectedTokenizer != "MMM" ? "" : ' and base tokenizer '+ selectedBaseTokenizer;
+      let baseTokenizerMessage = selectedTokenizer !== "MMM" ? "" : ' and base tokenizer '+ selectedBaseTokenizer;
       console.log(`Skipping upload for ${file.name} with tokenizer ${selectedTokenizer}${baseTokenizerMessage} - already processed`);
       return; // Skip if this file with this tokenizer was already processed
     }
@@ -326,7 +326,7 @@ function App() {
                     {selectedFiles.map((file, index) => (
                       <li key={index}>
                         {file.name}
-                        {responses.some(res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer != "MMM" || res.base_tokenizer === selectedBaseTokenizer)) && (
+                        {responses.some(res => res.file.name === file.name && res.tokenizer === selectedTokenizer && (res.tokenizer !== "MMM" || res.base_tokenizer === selectedBaseTokenizer)) && (
                           <span style={{ color: 'green', marginLeft: '10px' }}>
                             (Already processed with {selectedTokenizer}{selectedTokenizer === "MMM" ? " [base "+selectedBaseTokenizer+"] " : ""})
                           </span>

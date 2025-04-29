@@ -32,7 +32,7 @@ const TokenInfo: React.FC<DataDisplayProps> = ({ token, heading }) => {
           </div>
           {/* desc tends to just display value
           Since the default of desc is 0 we have to make sure it's not the appropriate value before hiding it */}
-          { (token.desc != "0" || token.value == "0") && <div>
+          { (String(token.desc) !== "0" || token.value === "0") && <div>
             <strong>Desc:</strong> {token.desc}
           </div>}
           { token.note_id !== null && <div>
