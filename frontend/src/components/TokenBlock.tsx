@@ -22,9 +22,11 @@ export function TokenTypeToColor(type: string): string {
     case 'Pitch': return 'lightblue';
     case 'PitchDrum': return 'lightskyblue';
     case 'NoteOn': return 'peachpuff';
+    case 'DrumOn': return 'sandybrown';
     case 'Velocity': return 'lightcoral';
     case 'Duration': return 'lightgoldenrodyellow';
     case 'NoteOff': return 'khaki';
+    case 'DrumOff': return 'darkkhaki';
     case 'Family': return 'lightgray';
     case 'TimeSig': return 'thistle';
     case 'MicroTiming': return 'plum';
@@ -51,6 +53,22 @@ export function TokenTypeToColor(type: string): string {
 
      return newName;
  }
+
+// Split token names into several lines e.g. PitchDrum into Pitch\nDrum
+export function SplitTokenNames(name: string): string {
+    // Split by capital letters
+    var arr = name.split(/(?=[A-Z])/);
+    if(arr.length < 2) return name; // only one word -> return it
+
+    // Multiple words -> insert new lines between them
+    var newName = '';
+    arr.forEach((word) => {
+        newName = newName.concat(word);
+        newName = newName.concat("\n");
+    })
+
+    return newName;
+}
 
 const TokenBlock: React.FC<TokenBlockProps> = memo(
   ({ item, onHover, onSelect, heading, highlight, selected, showTokenType }) => {
