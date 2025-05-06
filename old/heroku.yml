@@ -1,17 +1,17 @@
 build:
   docker:
-    - image: backend/railway/Dockerfile
+    - image: backend_old/railway/Dockerfile
     - image: frontend/Dockerfile
 
 release:
   command: bash -c 'echo "Zakończono budowanie aplikacji!"'
 
 containers:
-  - type: backend
+  - type: backend_old
     path: /app
     build:
       docker:
-        context: ./backend/railway
+        context: ./backend_old/railway
   - type: frontend
     path: /app
     build:

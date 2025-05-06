@@ -37,6 +37,10 @@ class ConfigModel(
     ticks_per_quarter: Annotated[int, Field(ge=24, le=960)]
     max_microtiming_shift: Annotated[float, Field(ge=0, le=1)]
     num_microtiming_bins: Annotated[int, Field(ge=1, le=64)]
+    # added for MMM
+    base_tokenizer: Literal[
+        'MIDILike', 'TSD', 'REMI'
+    ] | None
 
     @model_validator(mode="before")
     @classmethod

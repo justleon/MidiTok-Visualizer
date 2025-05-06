@@ -1,91 +1,245 @@
 .custom-midi-player {
+    font-family: Arial, sans-serif;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    .custom-midi-player {
+        max-width: 700px;
+        padding: 20px;
+    }
+}
+
+.player-header {
+    margin-bottom: 15px;
+}
+
+.player-header h3 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    word-break: break-all;
+}
+
+@media (min-width: 768px) {
+    .player-header h3 {
+        font-size: 1.2rem;
+    }
+}
+
+.player-controls {
+    margin-bottom: 20px;
+}
+
+.time-display {
     display: flex;
-    justify-content: center; 
-    align-items: center; 
-    gap: 10px; 
-    background-color: transparent; 
-    padding: 10px;
-    margin: 20px auto;
-    width: fit-content; 
+    justify-content: center;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #555;
 }
 
-.custom-midi-player .progress-bar {
-    width: 200px;
+.progress-container {
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    width: 100%;
     height: 8px;
-    background: #f0f0f0; 
-    border-radius: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    border-radius: 4px;
     outline: none;
-    border: 2px solid #ccc;
-    -webkit-appearance: none; 
+}
+
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
     appearance: none;
-}
-
-
-.custom-midi-player .progress-bar::-webkit-slider-thumb {
-    -webkit-appearance: none; 
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background-color: #525c6a !important; 
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
+    background: #4285f4;
     cursor: pointer;
-    transition: transform 0.2s ease; 
-    box-shadow: 0 0 0 2px black; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-
-.custom-midi-player .progress-bar::-webkit-slider-thumb:hover {
-    transform: scale(1.3); 
-}
-
-
-.custom-midi-player .progress-bar::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background-color: #525c6a !important; 
+.progress-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
     border-radius: 50%;
+    background: #4285f4;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    box-shadow: 0 0 0 2px black; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
-.custom-midi-player .progress-bar::-moz-range-thumb:hover {
-    transform: scale(1.3); 
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.custom-midi-player .progress-bar::-ms-thumb {
-    width: 16px;
-    height: 16px;
-    background-color: #525c6a !important; 
-    border-radius: 50%;
+.control-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    background-color: #4285f4;
+    color: white;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    box-shadow: 0 0 0 2px black; 
+    font-size: 1rem;
+    transition: background-color 0.2s, transform 0.1s;
+    min-width: 80px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.custom-midi-player .progress-bar::-ms-thumb:hover {
-    transform: scale(1.3); 
+.control-buttons button:hover:not(:disabled) {
+    background-color: #3367d6;
 }
 
-.custom-midi-player button {
-    background-color: white; 
-    color: black; 
-    border: 2px solid black; 
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 14px;
+.control-buttons button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.control-buttons button:disabled {
+    background-color: #b7b7b7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.player-settings {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e8e8e8;
+    border-radius: 8px;
+}
+
+.setting-group {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.setting-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
     font-weight: bold;
+    color: #333;
+}
+
+.volume-slider-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    padding: 0 10px;
+    position: relative;
+}
+
+.volume-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: #4285f4;
+}
+
+.volume-level {
+    color: #555;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    min-width: 45px;
+    text-align: right;
+}
+
+.volume-slider {
+    flex-grow: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, #4285f4 0%, #4285f4 50%, #ddd 50%, #ddd 100%);
+    border-radius: 3px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    border: 2px solid #4285f4;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-.custom-midi-player button:hover {
-    background-color: #525c6a;
-    color: #fff;
+.volume-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #4285f4;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-.custom-midi-player button:disabled {
-    background-color: #e0e0e0;
-    color: #a0a0a0;
-    border: 1px solid #ccc;
+.track-info {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.track-info h4 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+}
+
+.tracks-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tracks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tracks-table th, .tracks-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tracks-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tracks-table td {
+    word-break: break-word;
+}
+
+@media (max-width: 480px) {
+    .tracks-table {
+        font-size: 0.8rem;
+    }
+
+    .tracks-table th, .tracks-table td {
+        padding: 6px 4px;
+    }
+}
+
+.midi-loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
 }

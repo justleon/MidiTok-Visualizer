@@ -10,7 +10,7 @@
   transition: all 0.3s ease-in-out;
   z-index: 1;
   color: transparent;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .token-block.highlighted {
@@ -39,7 +39,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 10px;
-  opacity: 0;               
+  opacity: 0;
   transition: opacity 0.3s ease-in-out;
   white-space: pre-wrap;
 }
@@ -58,7 +58,7 @@
 
 
 .token-block.show-type .token-block-content {
-  opacity: 1;       
+  opacity: 1;
   color: black;
-  font-size: 7px;  
+  font-size: 7px;
 }

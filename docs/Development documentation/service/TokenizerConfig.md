@@ -1,6 +1,7 @@
-# midi_processing Class
 
-::: backend.core.service.midi_processing
+# Tokenizer Config
+
+::: backend.core.service.tokenizer.tokenizer_config
     handler: python
     options:
       show_root_heading: false

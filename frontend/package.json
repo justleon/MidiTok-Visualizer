@@ -24,7 +24,8 @@
     "react-tabs": "^6.0.0",
     "tone": "^15.0.4",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "soundfont-player": "^0.12.0"
   },
   "scripts": {
     "dev": "cross-env FAST_REFRESH=false react-scripts start",

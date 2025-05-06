@@ -1,7 +1,7 @@
 import pytest
 from miditok import TokenizerConfig
 
-from core.service.tokenizers.tokenizer_factory import TokenizerFactory
+from core.service.tokenizer.tokenizer_factory import TokenizerFactory
 
 
 # MIDILike 64 warnings

@@ -1,10 +1,11 @@
 import pytest
 from pathlib import Path
-from core.service.tokenizers.tokenizer_factory import TokenizerFactory
+from core.service.tokenizer.tokenizer_factory import TokenizerFactory
 from miditok import TokenizerConfig
 from miditoolkit import MidiFile
 from core.api.model import ConfigModel
-from core.service.midi_processing import add_notes_id, midi_to_notes
+from core.service.note.note_id import NoteIDHandler
+from core.service.note.note_extractor import NoteExtractor
 from core.constants import EXAMPLE_MIDI_FILE_PATH2
 from io import BytesIO
 @pytest.fixture
@@ -40,7 +41,8 @@ def user_config():
         ticks_per_quarter=480,
         max_microtiming_shift=0.0,
         num_microtiming_bins=32,
-        tokenizer="PerTok"
+        tokenizer="PerTok",
+        base_tokenizer=None,
     )
 
 
@@ -67,16 +69,17 @@ def test_add_notes_id_should_fail_for_example2_mid(midi_bytes, user_config):
         use_microtiming=user_config.use_microtiming,
         ticks_per_quarter=user_config.ticks_per_quarter,
         max_microtiming_shift=user_config.max_microtiming_shift,
-        num_microtiming_bins=user_config.num_microtiming_bins
+        num_microtiming_bins=user_config.num_microtiming_bins,
+        base_tokenizer=None,
     )
 
     factory = TokenizerFactory()
     tokenizer = factory.get_tokenizer(user_config.tokenizer, tokenizer_config)
-
+    note_extractor = NoteExtractor()
     midi = MidiFile(file=BytesIO(midi_bytes))
     tokens = tokenizer(midi)
-    notes = midi_to_notes(midi)
-
+    notes = note_extractor.midi_to_notes(midi)
+    note_id_handler = NoteIDHandler()
     #with pytest.raises(Exception) as e_info:
-    add_notes_id(tokens, notes, user_config.tokenizer)
+    note_id_handler.add_notes_id(tokens, notes, user_config.tokenizer)
     #print(f"Raised exception: {e_info.value}")

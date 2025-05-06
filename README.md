@@ -62,7 +62,7 @@ docker run frontend -p 3000:3000
 Basic run:
 
 ```sh
-cd backend
+cd backend_old
 poetry env activate
 poetry install
 python -m core.main
@@ -77,9 +77,9 @@ poetry run python -m core.main
 Using Docker:
 
 ```sh
-cd backend
-DOCKER_BUILDKIT=1 docker build --target=runtime . -t backend
-docker run backend -p 8000:8000
+cd backend_old
+DOCKER_BUILDKIT=1 docker build --target=runtime . -t backend_old
+docker run backend_old -p 8000:8000
 ```
 
 ## Testing
@@ -141,7 +141,7 @@ We gladly welcome PRs with enhancements, features and improvements!
 We use pre-commit before commiting any changes:
 
 ```sh
-cd backend
+cd backend_old
 pre-commit run --all-files
 ```
 

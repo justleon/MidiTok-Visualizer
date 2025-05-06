@@ -10,4 +10,7 @@ local_settings.py
 logs/
 site/
 backend_new/
-backend_newer/
+node_modules/
+frontend/node_modules/
+package-lock.json
+package.json
