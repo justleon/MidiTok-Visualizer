@@ -41,6 +41,7 @@ Przygotowano wstępną canve w react, umożliwiającą tworzenie oraz modyfikacj
 
 Planowane:
 zmiana modułu pianorolla oraz dodanie paska stanu
+poprawienie modelu w docs
 ## Tydzień 9 (12.05 - 18.05): Nowa funkcja
 ## Tydzień 10 (19.05 - 25.05):   Nowa funkcja cz.2
 ## Tydzień 11 (26.05 - 1.06):   Oddanie projektu, poprawa ewentualnych błędów
