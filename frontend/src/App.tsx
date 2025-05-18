@@ -8,8 +8,7 @@ import RangeSlider from './components/RangeSlider';
 import SingleValueSlider from './components/SingleValueSlider';
 import { ApiResponse, Token, Note, NestedList } from './interfaces/ApiResponse';
 import ErrorBoundary from './components/ErrorBoundary';
-import PianoRollDisplay from './components/PianoRollDisplay';
-import FilePlayback from './components/FilePlayback';
+import NewPianoRollDisplay from './components/NewPianoRollDisplay';
 import DemoFile from './components/DemoFile';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
@@ -841,11 +840,6 @@ function App() {
                                 )}
                               </ErrorBoundary>
                             </div>
-                            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                              <ErrorBoundary fallback={<p>Something went wrong</p>}>
-                                {res.response?.data ? <FilePlayback file={res.file} /> : null}
-                              </ErrorBoundary>
-                            </div>
 
                             <div className="grid-layout">
                               {/* LEFT COLUMN: DataDisplay */}
@@ -879,13 +873,14 @@ function App() {
                                       </TabList>
                                       {res.response.data.notes.map((notes, idx) => (
                                         <TabPanel key={idx}>
-                                          <PianoRollDisplay
+                                          <NewPianoRollDisplay
                                             notes={res.response?.data?.notes ?? [[]]}
                                             onNoteHover={handleNoteHover}
                                             onNoteSelect={handleNoteSelect}
                                             hoveredToken={hoveredToken}
                                             selectedToken={selectedToken}
                                             track={idx}
+                                            file={res.file}
                                           />
                                         </TabPanel>
                                       ))}
