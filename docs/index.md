@@ -18,6 +18,8 @@ MidiTokVisualizer currently supports the following tokenization methods from the
 - **Structured**: Provides a hierarchical representation of musical content
 - **CPWord**: Compound Word tokenization for representing complex musical relationships
 - **Octuple**: Multi-track tokenization with eight different token types
+- **MuMIDI**: A multitrack tokenization that represents all tracks in a single token sequence
+- **MMM**: A multitrack tokenization primarily designed for music inpainting and infilling
 - **PerTok**: Per-token representation with advanced microtiming capabilities
 
 Each tokenizer comes with customizable parameters to adapt to different musical tasks and genres.
