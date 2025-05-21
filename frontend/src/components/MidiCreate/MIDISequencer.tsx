@@ -367,7 +367,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
    // console.log("Sending download payload:", JSON.stringify(payload, null, 2));
 
     try {
-      const response = await fetch('http://localhost:8000/convert-to-midi/', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/convert-to-midi/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -418,7 +418,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/convert-to-midi/', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/convert-to-midi/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
