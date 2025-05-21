@@ -1,23 +1,31 @@
 import json
-
+import io
 import logging.config
 import os
 
-from fastapi import Body, FastAPI, File, HTTPException, UploadFile,Form,Request
+from fastapi import Body, FastAPI, File, HTTPException, UploadFile,Form,Request,status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse,StreamingResponse
+
+
 
 import traceback
 from core.api.logging_middleware import LoggingMiddleware, log_config
-from core.api.model import ConfigModel, MusicInformationData
+from core.api.model import ConfigModel, MusicInformationData, MIDIConversionRequest
 from core.service.midi_processing import MidiProcessor
 
+
 from core.service.serializer import TokSequenceEncoder
+
+from core.service.midi.midi_event import MidiEvent
+
+
 
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
 procesor=MidiProcessor()
+midievent=MidiEvent()
 app = FastAPI()
 
 react_api_base_url = os.getenv("REACT_APP_API_BASE_URL", "http://localhost:3000")
@@ -90,4 +98,26 @@ async def process(config: str = Form(...), file: UploadFile = File(...)) -> JSON
         )
     except Exception as e:
         return JSONResponse(content={"success": False, "data": None, "error": str(e)}, status_code=500)
+
+
+@app.post("/convert-to-midi/")
+async def convert_to_midi(params: MIDIConversionRequest):
+    try:
+        mid = midievent.create_midi_file_from_events(params)
+        midi_buffer = io.BytesIO()
+        mid.save(file=midi_buffer)
+        midi_buffer.seek(0)
+
+        return StreamingResponse(
+            midi_buffer,
+            media_type="audio/midi",
+            headers={"Content-Disposition": f"attachment; filename={params.output_filename}"}
+        )
+    except Exception as e:
+        print(f"Error during MIDI conversion: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred during MIDI conversion: {e}"
+        )
+
 

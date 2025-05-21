@@ -1,0 +1,81 @@
+/* SoundSynthesizer.css */
+
+/* Since SoundSynthesizer doesn't render anything visible,
+   this file is mostly a placeholder for potential UI controls
+   that might be added in the future */
+
+.synth-controls {
+  margin: 15px 0;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.synth-controls h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.synth-controls select,
+.synth-controls input[type="range"] {
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.synth-controls select:focus,
+.synth-controls input[type="range"]:focus {
+  border-color: #4285f4;
+  outline: none;
+}
+
+.oscillator-type-selector {
+  margin-bottom: 10px;
+}
+
+.volume-control {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.volume-control label {
+  min-width: 80px;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #4285f4 0%, #4285f4 50%, #ddd 50%, #ddd 100%);
+  border-radius: 3px;
+  outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4285f4;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #4285f4;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}

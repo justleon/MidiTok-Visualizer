@@ -64,6 +64,6 @@ TokenizerFactory.register_tokenizer("TSD", TSDTokenizer)
 TokenizerFactory.register_tokenizer("Structured", StructuredTokenizer)
 TokenizerFactory.register_tokenizer("CPWord", CPWordTokenizer)
 TokenizerFactory.register_tokenizer("Octuple", OctupleTokenizer)
-TokenizerFactory.register_tokenizer("MuMIDI", MuMIDITokenizer)  # Not used by frontend
-TokenizerFactory.register_tokenizer("MMM", MMMTokenizer)  # Not used by frontend
+TokenizerFactory.register_tokenizer("MuMIDI", MuMIDITokenizer)
+TokenizerFactory.register_tokenizer("MMM", MMMTokenizer)
 TokenizerFactory.register_tokenizer("PerTok", PerTokTokenizer)

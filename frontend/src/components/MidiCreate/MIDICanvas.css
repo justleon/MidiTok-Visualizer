@@ -1,0 +1,122 @@
+/* MIDICanvas.css */
+
+#canvasContainer {
+  width: 100%;
+  height: 600px;
+  overflow: auto;
+  position: relative;
+  user-select: none;
+  touch-action: none;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#canvasContainer:hover {
+  border-color: #4285f4;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+}
+
+#can {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.note-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-right: 1px solid #ddd;
+  width: 40px;
+  height: 100%;
+  pointer-events: none;
+}
+
+.note-label {
+  position: absolute;
+  font-size: 10px;
+  color: #444;
+  font-weight: bold;
+}
+
+/* Recording indicator */
+.recording-indicator {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  z-index: 100;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Playback position indicator */
+.playback-position {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: red;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.midi-note {
+  position: absolute;
+  background-color: rgba(0, 255, 0, 0.7);
+  border: 1px solid black;
+  border-radius: 3px;
+  transition: opacity 0.3s;
+}
+
+.midi-note:hover {
+  opacity: 0.8;
+}
+
+.midi-note.erasing {
+  background-color: rgba(255, 0, 0, 0.3);
+}
+
+/* Animation for canvas loading */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #canvasContainer {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+  }
+}

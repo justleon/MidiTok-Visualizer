@@ -12,6 +12,7 @@ import NewPianoRollDisplay from './components/NewPianoRollDisplay';
 import DemoFile from './components/DemoFile';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import MIDISequencer from "./components/MidiCreate/MIDISequencer";
 
 function App() {
   const listSupportPrograms = ['TSD', 'REMI', 'MIDILike', 'Structured', 'CPWord'];
@@ -24,6 +25,8 @@ function App() {
   const [selectedBaseTokenizer, setSelectedBaseTokenizer] = useState<string>('REMI');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const [showMidiSequencer, setShowMidiSequencer] = useState<boolean>(false);
 
   // Config states
   const [selectedPitchRange, setSelectedPitchRange] = useState<number[]>([21, 109]);
@@ -61,6 +64,18 @@ function App() {
   const [uploaderVisible, setUploaderVisible] = useState<boolean>(true);
 
   const [isInDemoMode, setIsInDemoMode] = useState<boolean>(false);
+
+  const toggleMidiSequencer = () => {
+    setShowMidiSequencer(!showMidiSequencer);
+  };
+
+  const handleMidiFileCreated = (file: File) => {
+    if (!uploadedFiles.some(f => f.name === file.name)) {
+      setUploadedFiles(prev => [...prev, file]);
+      setSelectedFile(file);
+      setShowMidiSequencer(false);
+    }
+  };
 
   const getUsedTokenizers = () => {
     if (!selectedFile) return [];
@@ -360,6 +375,36 @@ function App() {
 
   const usedTokenizers = getUsedTokenizers();
 
+
+  if (showMidiSequencer) {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <div
+            className="title"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+            onClick={() => window.location.reload()}
+          >
+            <span style={{ fontSize: '34px', fontWeight: 'bold', color: 'black' }}>
+              MidiTok Visualizer
+            </span>
+          </div>
+
+          <button
+            className="midi-sequencer-button"
+            onClick={toggleMidiSequencer}
+          >
+            ← Go back to tokenizers
+          </button>
+
+          <div className="midi-sequencer-wrapper">
+            <MIDISequencer onMidiFileCreated={handleMidiFileCreated} />
+          </div>
+        </header>
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -372,6 +417,13 @@ function App() {
             MidiTok Visualizer
           </span>
         </div>
+
+        <button
+          className="midi-sequencer-button"
+          onClick={toggleMidiSequencer}
+        >
+          Make your own MIDI file
+        </button>
 
         {uploaderVisible && (
           <div className="uploader-section">

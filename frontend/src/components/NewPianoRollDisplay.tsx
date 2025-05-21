@@ -26,6 +26,7 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const pianoRollContainerRef = useRef<HTMLDivElement>(null);
     const bottomScrollRef = useRef<HTMLDivElement>(null);
+    const playlineRef = useRef<HTMLDivElement>(null);
 
     const trackNotes = useMemo(() => notes[track] || [], [notes, track]);
     const allNotes = useMemo(() => notes.flat(), [notes]);
@@ -63,6 +64,8 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
 
     const [hoveredNote, setHoveredNote] = useState<Note | null>(null);
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+    const [currentlyPlayingNotes, setCurrentlyPlayingNotes] = useState<Note[]>([]);
+    const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
 
     const [midi, setMidi] = useState<Midi | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -82,13 +85,58 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
     };
 
     const getPlaylinePosition = (progress: number, duration: number) : number => {
-
         const initialPosition = whiteKeyWidth + 15; // TODO: get a better estimate
-
         const newPosition = initialPosition + timeScale * globalRightmostNote * progress/duration;
-
         return newPosition;
     }
+
+    // Function to scroll playline into view
+    const scrollPlaylineIntoView = () => {
+        if (!autoScrollEnabled) return;
+
+        const container = pianoRollContainerRef.current;
+        const playline = playlineRef.current;
+
+        if (container && playline) {
+            const containerRect = container.getBoundingClientRect();
+            const playlineLeft = parseFloat(playline.style.left);
+
+            // Calculate visible area
+            const visibleLeft = container.scrollLeft;
+            const visibleRight = visibleLeft + containerRect.width;
+            const buffer = containerRect.width * 0.2; // 20% buffer (smaller for faster response)
+
+            // Always keep the playline centered when possible
+            const targetPosition = Math.max(0, playlineLeft - containerRect.width * 0.5);
+
+            // Immediate scrolling without smooth behavior for faster response
+            container.scrollLeft = targetPosition;
+        }
+    };
+
+    // Find currently playing notes based on progress
+    const updateCurrentlyPlayingNotes = (currentProgress: number) => {
+        if (!trackNotes || !isPlaying) {
+            setCurrentlyPlayingNotes([]);
+            return;
+        }
+
+        const playing = trackNotes.filter(note => {
+            const noteStartTime = note.start / globalMaxTime * duration;
+            const noteEndTime = note.end / globalMaxTime * duration;
+            return currentProgress >= noteStartTime && currentProgress <= noteEndTime;
+        });
+
+        setCurrentlyPlayingNotes(playing);
+    };
+
+    // When progress changes, update the playing notes and scroll position
+    useEffect(() => {
+        updateCurrentlyPlayingNotes(progress);
+        if (autoScrollEnabled) {
+            scrollPlaylineIntoView();
+        }
+    }, [progress]);
 
     const createInstrumentSynth = (instrumentNumber: number) => {
 
@@ -247,6 +295,7 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         setProgress(0);
         setIsPlaying(false);
         setIsPaused(false);
+        setCurrentlyPlayingNotes([]);
     };
 
     const seekTo = (value: number) => {
@@ -257,15 +306,19 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         Tone.Transport.seconds = value;
         setProgress(value);
 
+        // Always update scrolling immediately after seeking
+        setTimeout(() => {
+            if (autoScrollEnabled) {
+                scrollPlaylineIntoView();
+            }
+        }, 0);
+
         if (isPlaying) {
             playMidi();
+        } else {
+            updateCurrentlyPlayingNotes(value);
         }
     };
-
-    // TODO: usunąłem to na szybko ale pewnie było istotne, oryginalnie zmieniało return value samego FilePlayback
-    // if (loading) {
-    //     return <div className="midi-loading">Loading MIDI file...</div>;
-    // }
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -294,16 +347,30 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                 const selected_token = selectedToken && note.note_id === selectedToken.note_id;
                 const highlight_note = note === hoveredNote;
                 const selected_note = note === selectedNote;
+                const playing_note = currentlyPlayingNotes.some(playingNote => playingNote.note_id === note.note_id);
 
                 const highlight = highlight_token || highlight_note;
                 const selected = selected_token || selected_note;
 
-                ctx.fillStyle = highlight ? 'yellow' : selected ? 'red' : 'blue';
+                let fillColor = 'blue';
+                if (playing_note) fillColor = '#00e676'; // Bright green for playing notes
+                if (highlight) fillColor = 'yellow';
+                if (selected) fillColor = 'red';
+
+                ctx.fillStyle = fillColor;
 
                 const x = note.start * timeScale + noteStartOffset;
                 const width = Math.max((note.end - note.start) * timeScale, 1);
                 const y = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
 
+                // Draw playing note row highlight
+                if (playing_note) {
+                    ctx.fillStyle = 'rgba(0, 230, 118, 0.1)'; // Light green transparent background
+                    ctx.fillRect(0, y, canvasWidth, noteHeight);
+                }
+
+                // Draw the actual note
+                ctx.fillStyle = fillColor;
                 ctx.beginPath();
                 ctx.roundRect(x, y, width, noteHeight, 5);
                 ctx.fill();
@@ -321,6 +388,7 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         selectedToken,
         hoveredNote,
         selectedNote,
+        currentlyPlayingNotes,
         lowestOctaveNote,
         numKeys,
         canvasHeight,
@@ -405,6 +473,10 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         }
     };
 
+    const toggleAutoScroll = () => {
+        setAutoScrollEnabled(!autoScrollEnabled);
+    };
+
     return (
         <div className="new-piano-roll-container">
             <div className="custom-midi-player">
@@ -453,6 +525,12 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                         >
                             ■ Stop
                         </button>
+                        <button
+                            onClick={toggleAutoScroll}
+                            className={`auto-scroll-button ${autoScrollEnabled ? 'active' : ''}`}
+                        >
+                            {autoScrollEnabled ? '🔄 Auto-scroll ON' : '⏹ Auto-scroll OFF'}
+                        </button>
                     </div>
                 </div>
 
@@ -482,12 +560,14 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                         </label>
                     </div>
                 </div>
-
-
             </div>
 
             <div ref={pianoRollContainerRef} className="piano-roll-scrollable">
-                <div className="piano-roll-playline" style={{left: getPlaylinePosition(progress, duration), right: getPlaylinePosition(progress, duration)}}/>s
+                <div
+                    ref={playlineRef}
+                    className="piano-roll-playline"
+                    style={{left: `${getPlaylinePosition(progress, duration)}px`}}
+                />
                 <div
                     className="piano-roll-key-column"
                     style={{ width: `${whiteKeyWidth}px`, height: `${canvasHeight}px` }}
@@ -499,11 +579,12 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                         const baseName = noteNames[noteNumber % 12];
                         const isBlack = ['C#', 'D#', 'F#', 'G#', 'A#'].includes(baseName);
                         const noteName = `${baseName}${Math.floor(noteNumber / 12) - 1}`;
+                        const isPlaying = currentlyPlayingNotes.some(note => note.pitch === noteNumber);
 
                         return (
                             <div
                                 key={i}
-                                className={`piano-roll-key ${isBlack ? 'black' : 'white'}`}
+                                className={`piano-roll-key ${isBlack ? 'black' : 'white'} ${isPlaying ? 'playing' : ''}`}
                                 style={{
                                     top: `${y}px`,
                                     width: `${whiteKeyWidth}px`,
@@ -526,17 +607,16 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                 />
             </div>
 
-            {/* TODO: To dodaje drugi scroll. Czy aby na pewno jest potrzebne?*/}
-            {/*<div*/}
-            {/*    ref={bottomScrollRef}*/}
-            {/*    className="piano-roll-bottom-scroll"*/}
-            {/*    onScroll={handleBottomScroll}*/}
-            {/*>*/}
-            {/*    <div*/}
-            {/*        className="piano-roll-bottom-scroll-placeholder"*/}
-            {/*        style={{ width: `${canvasWidth}px` }}*/}
-            {/*    />*/}
-            {/*</div>*/}
+            <div
+                ref={bottomScrollRef}
+                className="piano-roll-bottom-scroll"
+                onScroll={handleBottomScroll}
+            >
+                <div
+                    className="piano-roll-bottom-scroll-placeholder"
+                    style={{ width: `${canvasWidth}px` }}
+                />
+            </div>
         </div>
     );
 };
