@@ -13,7 +13,9 @@ class Synthesizer {
   }
 
   playNote(pitch: number, velocity: number = 90): void {
-    this.stopNote(pitch);
+    if (this.oscillators.has(pitch)) {
+      this.stopNote(pitch, 0);
+    }
     const frequency = 440 * Math.pow(2, (pitch - 69) / 12);
     const oscillator = this.audioContext.createOscillator();
     oscillator.type = 'sine';
@@ -23,33 +25,36 @@ class Synthesizer {
     gainNode.gain.setValueAtTime(normalizedVelocity * 0.3, this.audioContext.currentTime);
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
-    oscillator.start();
+    oscillator.start(this.audioContext.currentTime);
     this.oscillators.set(pitch, oscillator);
     this.gainNodes.set(pitch, gainNode);
   }
 
-  stopNote(pitch: number): void {
+  stopNote(pitch: number, releaseTime: number = 0.01): void {
     const oscillator = this.oscillators.get(pitch);
     const gainNode = this.gainNodes.get(pitch);
 
     if (oscillator && gainNode) {
-      const releaseTime = 1;
+      this.oscillators.delete(pitch);
+      this.gainNodes.delete(pitch);
+
+      gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
       gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + releaseTime);
+
       setTimeout(() => {
-        oscillator.stop();
-        oscillator.disconnect();
-        gainNode.disconnect();
-        this.oscillators.delete(pitch);
-        this.gainNodes.delete(pitch);
-      }, releaseTime * 1000);
+        try {
+          if (oscillator.context.state !== 'closed' && oscillator.numberOfOutputs > 0) {
+              oscillator.stop(this.audioContext.currentTime);
+              oscillator.disconnect();
+              gainNode.disconnect();
+          }
+        } catch (e) {
+          console.warn("Error stopping oscillator or disconnecting nodes:", e);
+        }
+      }, releaseTime * 1000 + 50);
     }
   }
 
-  cleanup(): void {
-    this.oscillators.forEach((osc, pitch) => {
-      this.stopNote(pitch);
-    });
-  }
 }
 
 interface SoundSynthesizerProps {
@@ -64,14 +69,9 @@ const SoundSynthesizer: React.FC<SoundSynthesizerProps> = ({ onSynthesizerReady 
       synthRef.current = new Synthesizer();
       onSynthesizerReady(synthRef.current);
     }
-
     return () => {
-      if (synthRef.current) {
-        synthRef.current.cleanup();
-      }
     };
   }, [onSynthesizerReady]);
-
   return null;
 };
 

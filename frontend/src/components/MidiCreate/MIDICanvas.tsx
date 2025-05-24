@@ -32,7 +32,9 @@ interface MIDICanvasProps {
   borderColor: string;
   lineWidth: number;
   bpm: number;
+  activeVirtualNote: boolean;
   stopPlayback: () => void;
+  trackColor: string;
 }
 
 const MIDICanvas: React.FC<MIDICanvasProps> = ({
@@ -65,10 +67,13 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
   borderColor,
   lineWidth,
   bpm,
-  stopPlayback
+  activeVirtualNote,
+  stopPlayback,
+  trackColor
 }) => {
   const redrawRef = useRef<() => void>(() => {});
   const [forceRedraw, setForceRedraw] = useState(0);
+
   const getNoteNameForY = (y: number): string => {
     const highestPitch = 108;
     const pitch = highestPitch - Math.floor(y / blockHeight);
@@ -79,6 +84,7 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
     const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     return `${noteNames[note]}${octave}`;
   };
+
   useEffect(() => {
     if (!isRecording) {
       const canvas = canvasRef.current;
@@ -92,127 +98,144 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
   }, [isRecording, forceRedraw]);
 
   const redrawCanvas = () => {
-  const canvas = canvasRef.current;
-  const ctx = canvas?.getContext('2d');
-  if (!canvas || !ctx) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#eee';
-  ctx.lineWidth = 0.5;
-  for (let x = 0; x < canvas.width; x += blockWidth) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
-    if ((x / blockWidth) % 4 === 0) {
-      ctx.fillStyle = '#888';
-      ctx.fillText(`${x / blockWidth}`, x + 2, 10);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = '#eee';
+    ctx.lineWidth = 0.5;
+
+    for (let x = 0; x < canvas.width; x += blockWidth) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+      if ((x / blockWidth) % 4 === 0) {
+        ctx.fillStyle = '#888';
+        ctx.fillText(`${x / blockWidth}`, x + 2, 10);
+      }
     }
-  }
 
-  for (let y = 0; y < canvas.height; y += blockHeight) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-    if (y % blockHeight === 0) {
-      const noteName = getNoteNameForY(y);
-      ctx.fillStyle = '#444';
-      ctx.font = '10px Arial';
-      ctx.fillText(noteName, 2, y + 12);
+    for (let y = 0; y < canvas.height; y += blockHeight) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+      if (y % blockHeight === 0) {
+        const noteName = getNoteNameForY(y);
+        ctx.fillStyle = '#444';
+        ctx.font = '10px Arial';
+        ctx.fillText(noteName, 2, y + 12);
+      }
     }
-  }
-  midiArray.forEach(([fX, lX, sY]) => {
-    ctx.fillStyle = fillColor;
-    const width = lX - fX + blockWidth;
-    ctx.fillRect(fX, sY, width, blockHeight);
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = lineWidth;
-    ctx.strokeRect(fX + lineWidth / 2, sY + lineWidth / 2, width - lineWidth, blockHeight - lineWidth);
-    if (width > 30) {
-      const noteName = getNoteNameForY(sY);
-      ctx.fillStyle = '#000';
-      ctx.font = '10px Arial';
-      ctx.fillText(noteName, fX + 3, sY + blockHeight - 3);
-    }
-  });
-  if (isDrawing) {
-    ctx.fillStyle = isErasingDrag ? eraseColor : fillColor;
-    const currentDrawingStartX = Math.min(firstX, currX);
-    const currentDrawingEndX = Math.max(firstX, currX);
-    const currentDrawingWidth = currentDrawingEndX - currentDrawingStartX + blockWidth;
 
-    ctx.fillRect(currentDrawingStartX, startY, currentDrawingWidth, blockHeight);
-
-    if (drawBorder) {
+    midiArray.forEach(([fX, lX, sY]) => {
+      ctx.fillStyle = trackColor; 
+      const width = lX - fX + blockWidth;
+      ctx.fillRect(fX, sY, width, blockHeight);
       ctx.strokeStyle = borderColor;
       ctx.lineWidth = lineWidth;
-      ctx.strokeRect(
-        currentDrawingStartX + lineWidth / 2,
-        startY + lineWidth / 2,
-        currentDrawingWidth - lineWidth,
-        blockHeight - lineWidth
-      );
-    }
-  }
+      ctx.strokeRect(fX + lineWidth / 2, sY + lineWidth / 2, width - lineWidth, blockHeight - lineWidth);
 
-  if (isPlaying && playbackPositionX > 0) {
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(playbackPositionX, 0);
-    ctx.lineTo(playbackPositionX, canvas.height);
-    ctx.stroke();
-  }
-  if (isRecording) {
-    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
-    const now = performance.now();
-    const elapsedMs = now - recordingStartTimeRef.current;
-    const recordingX = Math.floor((elapsedMs / 1000) * (bpm / 60) * blockWidth);
+      if (width > 30) {
+        const noteName = getNoteNameForY(sY);
+        ctx.fillStyle = '#000';
+        ctx.font = '10px Arial';
+        ctx.fillText(noteName, fX + 3, sY + blockHeight - 3);
+      }
+    });
 
-    ctx.fillRect(0, 0, recordingX, canvas.height);
+    if (isDrawing) {
+      ctx.fillStyle = isErasingDrag ? eraseColor : fillColor;
+      const currentDrawingStartX = Math.min(firstX, currX);
+      const currentDrawingEndX = Math.max(firstX, currX);
+      const currentDrawingWidth = currentDrawingEndX - currentDrawingStartX + blockWidth;
 
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(recordingX, 0);
-    ctx.lineTo(recordingX, canvas.height);
-    ctx.stroke();
-    ctx.fillStyle = 'red';
-    ctx.font = 'bold 20px Arial';
-    ctx.fillText('RECORDING', 10, 30);
+      ctx.fillRect(currentDrawingStartX, startY, currentDrawingWidth, blockHeight);
 
-    const container = containerRef.current;
-    if (container && recordingX > container.scrollLeft + container.clientWidth - 200) {
-      container.scrollLeft = recordingX - container.clientWidth + 200;
-    }
-  }
-};
-useEffect(() => {
-  if (isPlaying) {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const clearWidth = 4;
-        ctx.clearRect(playbackPositionX - clearWidth/2, 0, clearWidth, canvas.height);
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(playbackPositionX, 0);
-        ctx.lineTo(playbackPositionX, canvas.height);
-        ctx.stroke();
+      if (drawBorder) {
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = lineWidth;
+        ctx.strokeRect(
+          currentDrawingStartX + lineWidth / 2,
+          startY + lineWidth / 2,
+          currentDrawingWidth - lineWidth,
+          blockHeight - lineWidth
+        );
       }
     }
 
-    if (containerRef.current) {
+    if (isPlaying && playbackPositionX > 0) {
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playbackPositionX, 0);
+      ctx.lineTo(playbackPositionX, canvas.height);
+      ctx.stroke();
+    }
+
+    if (isRecording) {
+
+      const now = performance.now();
+      const elapsedMs = now - recordingStartTimeRef.current;
+      const recordingX = Math.floor((elapsedMs / 1000) * (bpm / 60) * blockWidth);
+      if(activeVirtualNote){
+      ctx.fillStyle = fillColor;
+      ctx.fillRect(currX, startY, recordingX-currX, blockHeight);
+      }
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+      ctx.fillRect(0, 0, recordingX, canvas.height);
+
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(recordingX, 0);
+      ctx.lineTo(recordingX, canvas.height);
+      ctx.stroke();
+
+      ctx.fillStyle = 'red';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText('RECORDING', 10, 30); 
       const container = containerRef.current;
-      if (playbackPositionX > container.scrollLeft + container.clientWidth - 100) {
-        container.scrollLeft = playbackPositionX - container.clientWidth / 2;
+      if (container && recordingX > container.scrollLeft + container.clientWidth - 200) {
+        container.scrollLeft = recordingX - container.clientWidth + 200;
       }
     }
-  }
-}, [playbackPositionX, isPlaying]);
+    else{
+      if(activeVirtualNote){
+      ctx.fillStyle = 'rgba(66, 133, 244, 0.7)';
+      ctx.fillRect(0, startY, canvas.width, blockHeight);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isPlaying) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          const clearWidth = 4;
+          ctx.clearRect(playbackPositionX - clearWidth/2, 0, clearWidth, canvas.height);
+          ctx.strokeStyle = 'red';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(playbackPositionX, 0);
+          ctx.lineTo(playbackPositionX, canvas.height);
+          ctx.stroke();
+        }
+      }
+
+      if (containerRef.current) {
+        const container = containerRef.current;
+        if (playbackPositionX > container.scrollLeft + container.clientWidth - 100) {
+          container.scrollLeft = playbackPositionX - container.clientWidth / 2;
+        }
+      }
+    }
+  }, [playbackPositionX, isPlaying, activeVirtualNote]);
 
   redrawRef.current = redrawCanvas;
 
@@ -225,7 +248,6 @@ useEffect(() => {
 
     const animate = () => {
       redrawCanvas();
-
       if (isRecording) {
         animationFrameId = requestAnimationFrame(animate);
       }
@@ -242,11 +264,7 @@ useEffect(() => {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [
-    midiArray, isDrawing, isErasingDrag, firstX, currX, startY, drawBorder,
-    playbackPositionX, isPlaying, isRecording, blockWidth, blockHeight,
-    fillColor, eraseColor, borderColor, lineWidth, bpm, recordingStartTimeRef
-  ]);
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -314,6 +332,7 @@ useEffect(() => {
             const existingRectEndX = existLX + blockWidth;
             const intersectStartX = Math.max(existingRectStartX, eraseRectStartX);
             const intersectEndX = Math.min(existingRectEndX, eraseRectEndX);
+
             if (intersectStartX >= intersectEndX) {
               nextMidiArray.push(existingBlock);
             } else {
@@ -386,6 +405,7 @@ useEffect(() => {
       setDrawBorder(false);
       setIsErasingDrag(false);
     };
+
 
     const handleMouseOut = (e: MouseEvent) => {
       if (isPlaying || isRecording) return;
@@ -510,6 +530,7 @@ useEffect(() => {
     window.addEventListener('keyup', handleKeyUp);
     canvas.addEventListener('contextmenu', handleContextMenu);
 
+
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mousedown', handleMouseDown);
@@ -550,13 +571,11 @@ useEffect(() => {
     if (!container) return;
 
     const handleScroll = () => {
-      // Horizontal snapping
       const newScrollLeft = Math.round(container.scrollLeft / blockWidth) * blockWidth;
       if (container.scrollLeft !== newScrollLeft) {
         container.scrollLeft = newScrollLeft;
       }
 
-      // Vertical snapping
       const newScrollTop = Math.round(container.scrollTop / blockHeight) * blockHeight;
       if (container.scrollTop !== newScrollTop) {
         container.scrollTop = newScrollTop;
@@ -570,7 +589,6 @@ useEffect(() => {
     };
   }, [blockWidth, blockHeight]);
 
-  // Labels for the side panel
   const renderSidePanel = () => {
     return (
       <div className="note-labels">
@@ -588,6 +606,13 @@ useEffect(() => {
       </div>
     );
   };
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = 0;
+      containerRef.current.scrollTop = 1000;
+    }
+  }, [containerRef]);
 
   return (
     <div style={{ position: 'relative' }}>
