@@ -60,9 +60,9 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
   const [activeVirtualNote, setActiveVirtualNote] = useState(false);
   const [lastActivePitch, setLastActivePitch] = useState<number | null>(null);
   const [midiOctaveOffset, setMidiOctaveOffset] = useState(0);
-
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [generatingStatus, setGeneratingStatus] = useState<string>("");
+  const [virtualKeyboardActiveKeys, setVirtualKeyboardActiveKeys] = useState<number[]>([]);
 
 
   const handleSynthesizerReady = (synth: Synthesizer) => {
@@ -182,20 +182,25 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
 
      // console.log("Note On - Raw Pitch:", rawPitch, "Adjusted Pitch:", pitch, "Note name:", getNoteNameFromPitch(pitch));
 
-      const xPos = Math.floor((elapsedMs / 1000) * (bpm / 60) * blockWidth);
-      const alignedX = xPos - (xPos % blockWidth);
-      const highestPitch = 108;
-      const yPos = (highestPitch - pitch) * blockHeight;
-      setStartY(yPos);
-      setCurrX(alignedX);
-      setActiveVirtualNote(true);
-      setLastActivePitch(pitch);
+      setVirtualKeyboardActiveKeys(prev =>
+        prev.includes(pitch) ? prev : [...prev, pitch]
+      );
 
-      activeNotesRef.current.set(pitch, {
-        startTime: elapsedMs,
-        startX: alignedX
-      });
+      if (isRecording) {
+        const xPos = Math.floor((elapsedMs / 1000) * (bpm / 60) * blockWidth);
+        const alignedX = xPos - (xPos % blockWidth);
+        const highestPitch = 108;
+        const yPos = (highestPitch - pitch) * blockHeight;
+        setStartY(yPos);
+        setCurrX(alignedX);
+        setActiveVirtualNote(true);
+        setLastActivePitch(pitch);
 
+        activeNotesRef.current.set(pitch, {
+          startTime: elapsedMs,
+          startX: alignedX
+        });
+      }
       if (synthRef.current) {
         synthRef.current.playNote(pitch, velocity);
       }
@@ -207,19 +212,20 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
     else if (status === 0x80 || (status === 0x90 && data[2] === 0)) {
       const rawPitch = data[1];
       const pitch = rawPitch + midiOctaveOffset;
-      const noteStart = activeNotesRef.current.get(pitch);
+      setVirtualKeyboardActiveKeys(prev => prev.filter(key => key !== pitch));
       if (pitch === lastActivePitch) {
         setActiveVirtualNote(false);
       }
 
-      if (noteStart && isRecording) {
-        const duration = elapsedMs - noteStart.startTime;
-        const durationInBlocks = Math.max(1, Math.floor((duration / 1000) * (bpm / 60)));
-        const endX = noteStart.startX + (durationInBlocks * blockWidth);
-        const highestPitch = 108;
-        const yPos = (highestPitch - pitch) * blockHeight;
+      if (isRecording) {
+        const noteStart = activeNotesRef.current.get(pitch);
+        if (noteStart) {
+          const duration = elapsedMs - noteStart.startTime;
+          const durationInBlocks = Math.max(1, Math.floor((duration / 1000) * (bpm / 60)));
+          const endX = noteStart.startX + (durationInBlocks * blockWidth);
+          const highestPitch = 108;
+          const yPos = (highestPitch - pitch) * blockHeight;
 
-        if (isRecording) {
           setCurrX(endX);
 
           setMidiTracks(prevTracks => {
@@ -229,9 +235,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
           });
         }
       }
-
       activeNotesRef.current.delete(pitch);
-
       if (synthRef.current) {
         synthRef.current.stopNote(pitch);
       }
@@ -248,8 +252,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
     const now = performance.now();
     const elapsedMs = now - recordingStartTimeRef.current;
     let xPos;
-
-
+    if (isRecording) {
       xPos = Math.floor((elapsedMs / 1000) * (bpm / 60) * blockWidth);
       const alignedX = xPos - (xPos % blockWidth);
       const highestPitch = 108;
@@ -263,8 +266,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
         startTime: elapsedMs,
         startX: alignedX
       });
-
-
+    }
     if (synthRef.current) {
       synthRef.current.playNote(pitch, velocity);
     }
@@ -292,18 +294,15 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
         const yPos = (highestPitch - pitch) * blockHeight;
         setCurrX(endX);
 
-
         setMidiTracks(prevTracks => {
           const newTracks = [...prevTracks];
           newTracks[activeTrackIndex] = [...newTracks[activeTrackIndex], [noteStart.startX, endX, yPos]];
           return newTracks;
         });
-        activeNotesRef.current.delete(pitch);
       }
-    } else {
-      activeNotesRef.current.delete(pitch);
     }
 
+    activeNotesRef.current.delete(pitch);
     if (synthRef.current) {
       synthRef.current.stopNote(pitch);
     }
@@ -357,6 +356,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
     setStartY(0);
     setActiveVirtualNote(false);
     setLastActivePitch(null);
+    setVirtualKeyboardActiveKeys([]);
   };
 
   const stopPlayback = () => {
@@ -378,6 +378,8 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
         synthRef.current.stopNote(i, 0.05);
       }
     }
+
+    setVirtualKeyboardActiveKeys([]);
   };
 
 
@@ -618,6 +620,7 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
     }
     setMidiTracks([[]]);
     setActiveTrackIndex(0);
+    setVirtualKeyboardActiveKeys([]);
   };
 
 
@@ -715,6 +718,8 @@ const MIDISequencer: React.FC<MIDISequencerProps> = ({ onMidiFileCreated }) => {
       <VirtualKeyboard
         onNoteOn={handleVirtualNoteOn}
         onNoteOff={handleVirtualNoteOff}
+        activeKeys={virtualKeyboardActiveKeys}
+        setActiveKeys={setVirtualKeyboardActiveKeys}
       />
       <div className="track-controls">
         <h4>MIDI Tracks</h4>

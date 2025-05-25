@@ -419,11 +419,19 @@ function App() {
         </div>
 
         <button
-          className="midi-sequencer-button"
+          className={`midi-sequencer-button ${isInDemoMode ? 'disabled-demo' : ''}`}
           onClick={toggleMidiSequencer}
+          disabled={isInDemoMode}
+          title={isInDemoMode ? "MIDI Sequencer is not available in Demo Mode" : ""}
         >
           Make your own MIDI file
         </button>
+
+        {isInDemoMode && (
+          <div className="demo-restriction-message">
+            <span>⚠️ MIDI creation is disabled in Demo Mode. Exit Demo Mode to access this feature.</span>
+          </div>
+        )}
 
         {uploaderVisible && (
           <div className="uploader-section">

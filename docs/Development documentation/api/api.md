@@ -14,7 +14,7 @@ The API has the following components:
 
 ## Endpoints
 
-### Process MIDI File
+### 1. Process MIDI File
 
 ```
 POST /process
@@ -52,6 +52,54 @@ The `config` field should contain a JSON object that conforms to the `ConfigMode
 - **415 Unsupported Media Type**: If the uploaded file is not a MIDI file
 - **422 Unprocessable Entity**: If the request parameters are invalid
 - **500 Internal Server Error**: If an unexpected error occurs during processing
+
+
+### 2. Convert to MIDI
+
+```
+POST /convert-to-midi/
+```
+
+This endpoint converts processed musical data back into a MIDI file format.
+
+#### Request
+
+**Content-Type:** `application/json`
+
+The request body should conform to the `MIDIConversionRequest` model structure:
+
+```json
+{
+  "output_filename": "converted_song.mid",
+  "events": [...],  // Array of MIDI events
+  "tracks": [...],  // Track configuration
+  // ... other conversion parameters
+}
+```
+
+#### Response
+
+**Success Response (200):**
+- **Content-Type**: `audio/midi`
+- **Content-Disposition**: `attachment; filename={output_filename}`
+- **Body**: Binary MIDI file data
+
+The response is a streaming download of the generated MIDI file.
+
+#### Error Responses
+
+- **500 Internal Server Error**: If an error occurs during MIDI conversion
+  ```json
+  {
+    "detail": "An error occurred during MIDI conversion: {error_details}"
+  }
+  ```
+
+
+
+
+
+
 
 ## Error Handling
 

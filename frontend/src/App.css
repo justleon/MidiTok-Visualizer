@@ -113,7 +113,7 @@ body {
   }
 }
 
-/* Custom file input styling */
+
 .file-input-container {
   position: relative;
   width: 100%;
@@ -168,7 +168,29 @@ body {
   white-space: nowrap;
 }
 
-/* Upload button styling */
+
+.file-upload-section.file-upload-disabled {
+  opacity: 0.6;
+}
+
+.file-upload.disabled,
+.file-input-label.disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  background-color: #f9f9f9 !important;
+}
+
+
+.file-upload.disabled input[type="file"],
+.file-input-container input[type="file"]:disabled {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+
 .upload-button {
   background-color: #4CAF50;
   color: white;
@@ -201,7 +223,7 @@ body {
   }
 }
 
-/* Loading animation */
+
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
@@ -229,7 +251,7 @@ body {
   gap: 8px;
 }
 
-/* Pulsating upload success animation */
+
 @keyframes pulse-success {
   0% {
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
@@ -388,7 +410,7 @@ body {
   }
 }
 
-/* Base Tokenizer Select Container Styles */
+
 .baseTokenizerSelectContainer {
   width: 100%;
   margin-top: 10px;
@@ -443,6 +465,7 @@ body {
   background-color: white;
   margin-top: 5px;
   transition: border-color 0.3s, box-shadow 0.3s;
+  color: #333;
 }
 
 #baseTokenizerSelect:focus {
@@ -451,13 +474,16 @@ body {
   outline: none;
 }
 
+#baseTokenizerSelect:hover {
+  border-color: #999;
+}
+
 @media (min-width: 768px) {
   #baseTokenizerSelect {
     font-size: 16px;
   }
 }
 
-/* Tokenizer status message */
 .tokenizer-status-message {
   width: 100%;
   text-align: left;
@@ -489,7 +515,6 @@ body {
   }
 }
 
-/* MMM Tokenizer Info Panel */
 .mmm-tokenizer-info {
   margin-bottom: 15px;
   padding: 10px;
@@ -507,41 +532,6 @@ body {
     padding: 12px 15px;
     font-size: 15px;
   }
-}
-
-.baseTokenizerSelectContainer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  position: static;
-  top: 20px;
-  right: 20px;
-  width: auto;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.baseTokenizerSelectContainer select {
-  width: 250px;
-  padding: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  color: black;
-  line-height: 1.5;
-  background-color: #fff;
-  border: 2px solid black;
-  border-radius: 5px;
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-
-  cursor: pointer;
-}
-
-.baseTokenizerSelectContainer select:hover,
-.baseTokenizerSelectContainer select:focus {
-  background-color: #525c6a;
-  border: 2px solid black;
-  border-radius: 5px;
-  color: #fff;
 }
 
 button {
@@ -965,7 +955,7 @@ input[type="checkbox"]:hover {
   box-shadow: none;
 }
 
-/* Tokenizing animation */
+
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7);
@@ -982,7 +972,7 @@ input[type="checkbox"]:hover {
   animation: pulse 1.5s infinite;
 }
 
-/* Large spinner for tokenizing process */
+
 .large-spinner {
   width: 40px;
   height: 40px;
@@ -1108,11 +1098,11 @@ input[type="checkbox"]:hover {
   min-width: 250px;
 }
 .right-column {
-  min-width: 0; /* Allows the right column to shrink below its content size if needed */
+  min-width: 0;
   flex-grow: 2;
 }
 
-/* Make sure the piano roll has enough room to display properly */
+
 .right-column .piano-roll-container {
   width: 100%;
   min-height: 400px;
@@ -1147,37 +1137,7 @@ input[type="checkbox"]:hover {
 .demo-file-section {
   margin-bottom: 15px;
 }
-.file-upload.disabled,
-.file-input-label.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-.section-divider {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  color: #757575;
-}
 
-.section-divider::before,
-.section-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.section-divider span {
-  margin: 0 10px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.demo-file-section {
-  margin-bottom: 15px;
-}
-
-/* Styl dla przycisku MIDI Sequencer */
 .midi-sequencer-button {
   background-color: #4CAF50;
   color: white;
@@ -1202,7 +1162,6 @@ input[type="checkbox"]:hover {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Styl dla kontenera sekwencera MIDI */
 .midi-sequencer-wrapper {
   width: 100%;
   max-width: 100%;
@@ -1210,7 +1169,6 @@ input[type="checkbox"]:hover {
   padding: 0;
 }
 
-/* Nadpisanie stylów sekwencera MIDI aby zajmował pełną szerokość */
 .midi-sequencer-wrapper .midi-sequencer-container {
   width: 100%;
   max-width: 100%;
@@ -1222,5 +1180,3 @@ input[type="checkbox"]:hover {
   width: 100%;
   max-width: 100%;
 }
-
-/* Możesz dodać te style do istniejącego pliku App.css */

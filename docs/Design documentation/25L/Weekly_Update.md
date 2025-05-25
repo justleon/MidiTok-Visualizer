@@ -39,9 +39,27 @@ Przygotowano wstępną canve w react, umożliwiającą tworzenie oraz modyfikacj
 - Zmieniono proces uploadu plików. Od teraz można dodawać pliki, a następnie wybierać, który pliki MIDI oraz w jaki sposób go przetworzyć 
 - Poprawiono skalowanie napisów w blokach tokeninfo oraz poprawiono skalowanie tokenblock'ów
 
-Planowane:
-zmiana modułu pianorolla oraz dodanie paska stanu
-poprawienie modelu w docs
-## Tydzień 9 (12.05 - 18.05): Nowa funkcja
-## Tydzień 10 (19.05 - 25.05):   Nowa funkcja cz.2
+## Tydzień 9 (12.05 - 18.05): Nowa funkcja- Make your own midi file[MYOMF]
+
+- Zmieniono piano roll oraz odtwarzacz. od teraz jest to jeden zsynchronizowany moduł, umożliwiający dodanie slidera oraz aktualnie odtwarzanych nut. Dodano również auto scroll.
+- Poprawiono dokumentacje modelu.
+- [MYOMF] Dodanie canvy z możliwością rysowania i usuwania bloków
+- [MYOMF] Dodano wstępny etap tworzenia midi przez zapis z canvas do pliku .mid używając do tego MIDO
+- [MYOMF] Dodano ustawienia tworzonych plików MIDI (ticks per beat, bpm, filename)
+- [MYOMF] Stworzono moduł wirtualnej klawiatury midi, sprzężony z fizyczną klawiaturą
+- [MYOMF] Dodano sterowanie canvą
+## Tydzień 10 (19.05 - 25.05):   Nowa funkcja cz.2 [[MYOMF]]
+- Zmieniono podejście do nowej funkcji i użyto WEBMidi. Dzięki niemu dodano opcje nagrywania poprzez fizyczne urządzenia produkujące sygnały MIDI.
+- Poprawiono moduł odgrywania nut z canvy- odgrywa on teraz całą nutę. 
+- Dodano połączenie między wirtualną klawiaturą a fizycznym urządzeniem- wybranie na jednym z urządzeń odpowiedniego przycisku odgrywa go na drugim
+- Poprawiono styl MIDICanvas
+- Dodano animacje rysowania kolejnych nut.
+- Dodano opcje dodawanie i usuwanie ścieżek
+- Dodano przycisk tworzenia i upload do głównej funkcji tokenizacji.
+- Dodano opcje Record oraz Play via MIDI Device
 ## Tydzień 11 (26.05 - 1.06):   Oddanie projektu, poprawa ewentualnych błędów
+- Poprawiono błąd wyglądu wyboru base-tokenizera
+- Poprawiono wygląd przycisku upload file przy trybie demo
+- Poprawiono bład nagrywania 
+- Wyłączono opcje tworzenia midi w trybie demo
+- Dodano dokumentacji nowej funkcji w api

@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './VirtualKeyboard.css';
 
 interface VirtualKeyboardProps {
   onNoteOn: (pitch: number, velocity: number) => void;
   onNoteOff: (pitch: number) => void;
+  activeKeys: number[];
+  setActiveKeys: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onNoteOn, onNoteOff }) => {
-  const [activeKeys, setActiveKeys] = useState<number[]>([]);
+const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
+  onNoteOn,
+  onNoteOff,
+  activeKeys,
+  setActiveKeys
+}) => {
   const startOctave = 4;
   const numOctaves = 2;
-  const whiteKeys = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B
-  const blackKeys = [1, 3, 6, 8, 10]; // C#, D#, F#, G#, A#
+  const whiteKeys = [0, 2, 4, 5, 7, 9, 11];
+  const blackKeys = [1, 3, 6, 8, 10];
 
   const handleMouseDown = (pitch: number) => {
     if (!activeKeys.includes(pitch)) {
@@ -24,6 +30,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onNoteOn, onNoteOff }
     setActiveKeys(prev => prev.filter(key => key !== pitch));
     onNoteOff(pitch);
   };
+
   useEffect(() => {
     const handleWindowMouseUp = () => {
       activeKeys.forEach(key => onNoteOff(key));
@@ -32,27 +39,27 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onNoteOn, onNoteOff }
 
     window.addEventListener('mouseup', handleWindowMouseUp);
     return () => window.removeEventListener('mouseup', handleWindowMouseUp);
-  }, [activeKeys, onNoteOff]);
+  }, [activeKeys, onNoteOff, setActiveKeys]);
 
   useEffect(() => {
     const keyMap: { [key: string]: number } = {
-      'a': 60, // C4
-      'w': 61, // C#4
-      's': 62, // D4
-      'e': 63, // D#4
-      'd': 64, // E4
-      'f': 65, // F4
-      't': 66, // F#4
-      'g': 67, // G4
-      'y': 68, // G#4
-      'h': 69, // A4
-      'u': 70, // A#4
-      'j': 71, // B4
-      'k': 72, // C5
-      'o': 73, // C#5
-      'l': 74, // D5
-      'p': 75, // D#5
-      ';': 76, // E5
+      'a': 60,
+      'w': 61,
+      's': 62,
+      'e': 63,
+      'd': 64,
+      'f': 65,
+      't': 66,
+      'g': 67,
+      'y': 68,
+      'h': 69,
+      'u': 70,
+      'j': 71,
+      'k': 72,
+      'o': 73,
+      'l': 74,
+      'p': 75,
+      ';': 76,
     };
 
     const pressedKeys = new Set<string>();
@@ -100,7 +107,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onNoteOn, onNoteOff }
           const octave = startOctave + octaveIdx;
 
           return whiteKeys.map(noteInOctave => {
-            const pitch = octave * 12 + noteInOctave;
+            const pitch = (octave + 1) * 12 + noteInOctave;
             const isActive = activeKeys.includes(pitch);
 
             return (
@@ -123,7 +130,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({ onNoteOn, onNoteOff }
           const octave = startOctave + octaveIdx;
 
           return blackKeys.map(noteInOctave => {
-            const pitch = octave * 12 + noteInOctave;
+            const pitch = (octave + 1) * 12 + noteInOctave;
             const isActive = activeKeys.includes(pitch);
             const whiteKeyWidth = 100 / (whiteKeys.length * numOctaves);
             let leftPosition;
