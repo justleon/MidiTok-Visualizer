@@ -73,6 +73,7 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
 }) => {
   const redrawRef = useRef<() => void>(() => {});
   const [forceRedraw, setForceRedraw] = useState(0);
+  const isDrawingRef = useRef<boolean>(false);
 
   const getNoteNameForY = (y: number): string => {
     const highestPitch = 108;
@@ -84,6 +85,11 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
     const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     return `${noteNames[note]}${octave}`;
   };
+
+  // Sync ref with state
+  useEffect(() => {
+    isDrawingRef.current = isDrawing;
+  }, [isDrawing]);
 
   useEffect(() => {
     if (!isRecording) {
@@ -132,7 +138,7 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
     }
 
     midiArray.forEach(([fX, lX, sY]) => {
-      ctx.fillStyle = trackColor; 
+      ctx.fillStyle = trackColor;
       const width = lX - fX + blockWidth;
       ctx.fillRect(fX, sY, width, blockHeight);
       ctx.strokeStyle = borderColor;
@@ -197,7 +203,7 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
 
       ctx.fillStyle = 'red';
       ctx.font = 'bold 20px Arial';
-      ctx.fillText('RECORDING', 10, 30); 
+      ctx.fillText('RECORDING', 10, 30);
       const container = containerRef.current;
       if (container && recordingX > container.scrollLeft + container.clientWidth - 200) {
         container.scrollLeft = recordingX - container.clientWidth + 200;
@@ -266,13 +272,114 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
     };
   });
 
+  const completeDrawingOperation = (finalX: number) => {
+    if (!isDrawingRef.current) return;
+
+    setIsDrawing(false);
+    setDrawBorder(false);
+    isDrawingRef.current = false;
+
+    const alignedFinalX = finalX - (finalX % blockWidth);
+    const actionStartX = Math.min(firstX, alignedFinalX);
+    const actionEndX = Math.max(firstX, alignedFinalX);
+    const wasErasing = isErasingDrag;
+
+    if (wasErasing) {
+      setMidiArray(prevMidiArray => {
+        const nextMidiArray: number[][] = [];
+        const eraseRectStartX = actionStartX;
+        const eraseRectEndX = actionEndX + blockWidth;
+
+        prevMidiArray.forEach(existingBlock => {
+          const [existFX, existLX, existSY] = existingBlock;
+          if (existSY !== startY) {
+            nextMidiArray.push(existingBlock);
+            return;
+          }
+          const existingRectStartX = existFX;
+          const existingRectEndX = existLX + blockWidth;
+          const intersectStartX = Math.max(existingRectStartX, eraseRectStartX);
+          const intersectEndX = Math.min(existingRectEndX, eraseRectEndX);
+
+          if (intersectStartX >= intersectEndX) {
+            nextMidiArray.push(existingBlock);
+          } else {
+            const segmentBeforeStartX = existFX;
+            const segmentBeforeEndX = intersectStartX;
+
+            if (segmentBeforeStartX < segmentBeforeEndX) {
+              const newLX = segmentBeforeEndX - blockWidth;
+              if (segmentBeforeStartX <= newLX) {
+                nextMidiArray.push([segmentBeforeStartX, newLX, existSY]);
+              }
+            }
+
+            const segmentAfterStartX = intersectEndX;
+            const segmentAfterEndX = existingRectEndX;
+
+            if (segmentAfterStartX < segmentAfterEndX) {
+              const newFX = segmentAfterStartX;
+              const newLX = segmentAfterEndX - blockWidth;
+              if (newFX <= newLX) {
+                nextMidiArray.push([newFX, newLX, existSY]);
+              }
+            }
+          }
+        });
+        return nextMidiArray;
+      });
+    } else {
+      if (actionStartX <= actionEndX) {
+        const newBlock = [actionStartX, actionEndX, startY];
+        setMidiArray(prevMidiArray => {
+          const nextMidiArray: number[][] = [];
+          prevMidiArray.forEach(existingBlock => {
+            const [existFX, existLX, existSY] = existingBlock;
+            if (existSY !== startY) {
+              nextMidiArray.push(existingBlock);
+              return;
+            }
+            const existingRectEnd = existLX + blockWidth;
+            const newRectEnd = actionEndX + blockWidth;
+            const overlaps = !(existingRectEnd <= actionStartX || existFX >= newRectEnd);
+
+            if (!overlaps) {
+              nextMidiArray.push(existingBlock);
+            } else {
+              const leftPartEnd = actionStartX - blockWidth;
+              if (existFX <= leftPartEnd) {
+                const leftSegmentLX = Math.min(existLX, leftPartEnd);
+                if (existFX <= leftSegmentLX) {
+                  nextMidiArray.push([existFX, leftSegmentLX, existSY]);
+                }
+              }
+              const rightPartStart = actionEndX + blockWidth;
+              if (existLX + blockWidth >= rightPartStart) {
+                const rightSegmentFX = Math.max(existFX, rightPartStart);
+                if (rightSegmentFX <= existLX) {
+                  nextMidiArray.push([rightSegmentFX, existLX, existSY]);
+                }
+              }
+            }
+          });
+          if (actionStartX <= actionEndX) {
+            nextMidiArray.push(newBlock);
+          }
+          return nextMidiArray;
+        });
+      }
+    }
+
+    setIsErasingDrag(false);
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDrawing) return;
+      if (!isDrawingRef.current) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const newCurrX = x - (x % blockWidth);
@@ -286,6 +393,8 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
       if (isPlaying) {
         stopPlayback();
       }
+      e.preventDefault();
+
       const isErasing = e.ctrlKey || e.metaKey;
       setIsErasingDrag(isErasing);
 
@@ -294,6 +403,7 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
       const yPos = e.clientY - rect.top;
 
       setIsDrawing(true);
+      isDrawingRef.current = true;
       const initialX = x - (x % blockWidth);
       const initialY = yPos - (yPos % blockHeight);
 
@@ -306,202 +416,29 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
 
     const handleMouseUp = (e: MouseEvent) => {
       if (isPlaying || isRecording) return;
-      if (!isDrawing) return;
-      setIsDrawing(false);
+      if (!isDrawingRef.current) return;
 
-      const rect = canvas.getBoundingClientRect();
-      const finalX = e.clientX - rect.left;
-      const alignedFinalX = finalX - (finalX % blockWidth);
-      const actionStartX = Math.min(firstX, alignedFinalX);
-      const actionEndX = Math.max(firstX, alignedFinalX);
-      const wasErasing = isErasingDrag;
-
-      if (wasErasing) {
-        setMidiArray(prevMidiArray => {
-          const nextMidiArray: number[][] = [];
-          const eraseRectStartX = actionStartX;
-          const eraseRectEndX = actionEndX + blockWidth;
-
-          prevMidiArray.forEach(existingBlock => {
-            const [existFX, existLX, existSY] = existingBlock;
-            if (existSY !== startY) {
-              nextMidiArray.push(existingBlock);
-              return;
-            }
-            const existingRectStartX = existFX;
-            const existingRectEndX = existLX + blockWidth;
-            const intersectStartX = Math.max(existingRectStartX, eraseRectStartX);
-            const intersectEndX = Math.min(existingRectEndX, eraseRectEndX);
-
-            if (intersectStartX >= intersectEndX) {
-              nextMidiArray.push(existingBlock);
-            } else {
-              const segmentBeforeStartX = existFX;
-              const segmentBeforeEndX = intersectStartX;
-
-              if (segmentBeforeStartX < segmentBeforeEndX) {
-                const newLX = segmentBeforeEndX - blockWidth;
-                if (segmentBeforeStartX <= newLX) {
-                  nextMidiArray.push([segmentBeforeStartX, newLX, existSY]);
-                }
-              }
-
-              const segmentAfterStartX = intersectEndX;
-              const segmentAfterEndX = existingRectEndX;
-
-              if (segmentAfterStartX < segmentAfterEndX) {
-                const newFX = segmentAfterStartX;
-                const newLX = segmentAfterEndX - blockWidth;
-                if (newFX <= newLX) {
-                  nextMidiArray.push([newFX, newLX, existSY]);
-                }
-              }
-            }
-          });
-          return nextMidiArray;
-        });
-      } else {
-        if (actionStartX <= actionEndX) {
-          const newBlock = [actionStartX, actionEndX, startY];
-          setMidiArray(prevMidiArray => {
-            const nextMidiArray: number[][] = [];
-            prevMidiArray.forEach(existingBlock => {
-              const [existFX, existLX, existSY] = existingBlock;
-              if (existSY !== startY) {
-                nextMidiArray.push(existingBlock);
-                return;
-              }
-              const existingRectEnd = existLX + blockWidth;
-              const newRectEnd = actionEndX + blockWidth;
-              const overlaps = !(existingRectEnd <= actionStartX || existFX >= newRectEnd);
-
-              if (!overlaps) {
-                nextMidiArray.push(existingBlock);
-              } else {
-                const leftPartEnd = actionStartX - blockWidth;
-                if (existFX <= leftPartEnd) {
-                  const leftSegmentLX = Math.min(existLX, leftPartEnd);
-                  if (existFX <= leftSegmentLX) {
-                    nextMidiArray.push([existFX, leftSegmentLX, existSY]);
-                  }
-                }
-                const rightPartStart = actionEndX + blockWidth;
-                if (existLX + blockWidth >= rightPartStart) {
-                  const rightSegmentFX = Math.max(existFX, rightPartStart);
-                  if (rightSegmentFX <= existLX) {
-                    nextMidiArray.push([rightSegmentFX, existLX, existSY]);
-                  }
-                }
-              }
-            });
-            if (actionStartX <= actionEndX) {
-              nextMidiArray.push(newBlock);
-            }
-            return nextMidiArray;
-          });
-        }
+      let finalX = currX;
+      if (e.target === canvas) {
+        const rect = canvas.getBoundingClientRect();
+        finalX = e.clientX - rect.left;
       }
 
-      setDrawBorder(false);
-      setIsErasingDrag(false);
+      completeDrawingOperation(finalX);
+    };
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (isPlaying || isRecording) return;
+      if (!isDrawingRef.current) return;
+
+      completeDrawingOperation(currX);
     };
 
 
-    const handleMouseOut = (e: MouseEvent) => {
-      if (isPlaying || isRecording) return;
-      if (!isDrawing) return;
-      setIsDrawing(false);
-
-      setDrawBorder(false);
-      const finalNoteEndX = currX;
-      const actionStartX = Math.min(firstX, finalNoteEndX);
-      const actionEndX = Math.max(firstX, finalNoteEndX);
-
-      const wasErasing = isErasingDrag;
-
-      if (wasErasing) {
-        setMidiArray(prevMidiArray => {
-          const nextMidiArray: number[][] = [];
-          const eraseRectStartX = actionStartX;
-          const eraseRectEndX = actionEndX + blockWidth;
-
-          prevMidiArray.forEach(existingBlock => {
-            const [existFX, existLX, existSY] = existingBlock;
-
-            if (existSY !== startY) {
-              nextMidiArray.push(existingBlock);
-              return;
-            }
-            const existingRectStartX = existFX;
-            const existingRectEndX = existLX + blockWidth;
-            const intersectStartX = Math.max(existingRectStartX, eraseRectStartX);
-            const intersectEndX = Math.min(existingRectEndX, eraseRectEndX);
-            if (intersectStartX >= intersectEndX) {
-              nextMidiArray.push(existingBlock);
-            } else {
-              const segmentBeforeStartX = existFX;
-              const segmentBeforeEndX = intersectStartX;
-              if (segmentBeforeStartX < segmentBeforeEndX) {
-                const newLX = segmentBeforeEndX - blockWidth;
-                if (segmentBeforeStartX <= newLX) {
-                  nextMidiArray.push([segmentBeforeStartX, newLX, existSY]);
-                }
-              }
-              const segmentAfterStartX = intersectEndX;
-              const segmentAfterEndX = existingRectEndX;
-              if (segmentAfterStartX < segmentAfterEndX) {
-                const newFX = segmentAfterStartX;
-                const newLX = segmentAfterEndX - blockWidth;
-                if (newFX <= newLX) {
-                  nextMidiArray.push([newFX, newLX, existSY]);
-                }
-              }
-            }
-          });
-          return nextMidiArray;
-        });
-      } else {
-        if (actionStartX <= actionEndX) {
-          const newBlock = [actionStartX, actionEndX, startY];
-          setMidiArray(prevMidiArray => {
-            const nextMidiArray: number[][] = [];
-            prevMidiArray.forEach(existingBlock => {
-              const [existFX, existLX, existSY] = existingBlock;
-              if (existSY !== startY) {
-                nextMidiArray.push(existingBlock);
-                return;
-              }
-              const existingRectEnd = existLX + blockWidth;
-              const newRectEnd = actionEndX + blockWidth;
-              const overlaps = !(existingRectEnd <= actionStartX || existFX >= newRectEnd);
-
-              if (!overlaps) {
-                nextMidiArray.push(existingBlock);
-              } else {
-                const leftPartEnd = actionStartX - blockWidth;
-                if (existFX <= leftPartEnd) {
-                  const leftSegmentLX = Math.min(existLX, leftPartEnd);
-                  if (existFX <= leftSegmentLX) {
-                    nextMidiArray.push([existFX, leftSegmentLX, existSY]);
-                  }
-                }
-                const rightPartStart = actionEndX + blockWidth;
-                if (existLX + blockWidth >= rightPartStart) {
-                  const rightSegmentFX = Math.max(existFX, rightPartStart);
-                  if (rightSegmentFX <= existLX) {
-                    nextMidiArray.push([rightSegmentFX, existLX, existSY]);
-                  }
-                }
-              }
-            });
-            if (actionStartX <= actionEndX) {
-              nextMidiArray.push(newBlock);
-            }
-            return nextMidiArray;
-          });
-        }
+    const handleGlobalMouseUp = (e: MouseEvent) => {
+      if (isDrawingRef.current) {
+        handleMouseUp(e);
       }
-      setIsErasingDrag(false);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -524,18 +461,19 @@ const MIDICanvas: React.FC<MIDICanvasProps> = ({
 
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('mouseout', handleMouseOut);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     canvas.addEventListener('contextmenu', handleContextMenu);
 
-
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
-      canvas.removeEventListener('mouseout', handleMouseOut);
+      canvas.removeEventListener('mouseup', handleMouseUp);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       canvas.removeEventListener('contextmenu', handleContextMenu);
