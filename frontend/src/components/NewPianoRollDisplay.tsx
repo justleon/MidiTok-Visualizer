@@ -90,7 +90,6 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         return newPosition;
     }
 
-    // Function to scroll playline into view
     const scrollPlaylineIntoView = () => {
         if (!autoScrollEnabled) return;
 
@@ -100,21 +99,11 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         if (container && playline) {
             const containerRect = container.getBoundingClientRect();
             const playlineLeft = parseFloat(playline.style.left);
-
-            // Calculate visible area
-            const visibleLeft = container.scrollLeft;
-            const visibleRight = visibleLeft + containerRect.width;
-            const buffer = containerRect.width * 0.2; // 20% buffer (smaller for faster response)
-
-            // Always keep the playline centered when possible
             const targetPosition = Math.max(0, playlineLeft - containerRect.width * 0.5);
-
-            // Immediate scrolling without smooth behavior for faster response
             container.scrollLeft = targetPosition;
         }
     };
 
-    // Find currently playing notes based on progress
     const updateCurrentlyPlayingNotes = (currentProgress: number) => {
         if (!trackNotes || !isPlaying) {
             setCurrentlyPlayingNotes([]);
@@ -130,7 +119,6 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
         setCurrentlyPlayingNotes(playing);
     };
 
-    // When progress changes, update the playing notes and scroll position
     useEffect(() => {
         updateCurrentlyPlayingNotes(progress);
         if (autoScrollEnabled) {
@@ -353,7 +341,7 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                 const selected = selected_token || selected_note;
 
                 let fillColor = 'blue';
-                if (playing_note) fillColor = '#00e676'; // Bright green for playing notes
+                if (playing_note) fillColor = '#00e676';
                 if (highlight) fillColor = 'yellow';
                 if (selected) fillColor = 'red';
 
@@ -363,13 +351,11 @@ const NewPianoRollDisplay: React.FC<NewPianoRollDisplayProps> = ({
                 const width = Math.max((note.end - note.start) * timeScale, 1);
                 const y = canvasHeight - (note.pitch - lowestOctaveNote + 1) * noteHeight;
 
-                // Draw playing note row highlight
                 if (playing_note) {
-                    ctx.fillStyle = 'rgba(0, 230, 118, 0.1)'; // Light green transparent background
+                    ctx.fillStyle = 'rgba(0, 230, 118, 0.1)';
                     ctx.fillRect(0, y, canvasWidth, noteHeight);
                 }
 
-                // Draw the actual note
                 ctx.fillStyle = fillColor;
                 ctx.beginPath();
                 ctx.roundRect(x, y, width, noteHeight, 5);

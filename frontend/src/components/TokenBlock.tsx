@@ -38,13 +38,9 @@ export function TokenTypeToColor(type: string): string {
     default: return 'white';
   }
 }
-// Split token names into several lines e.g. PitchDrum into Pitch\nDrum
  export function SplitTokenNames(name: string): string {
-     // Split by capital letters
      var arr = name.split(/(?=[A-Z])/);
-     if(arr.length < 2) return name; // only one word -> return it
-
-     // Multiple words -> insert new lines between them
+     if(arr.length < 2) return name;
      var newName = '';
      arr.forEach((word) => {
          newName = newName.concat(word);
@@ -61,7 +57,6 @@ const TokenBlock: React.FC<TokenBlockProps> = memo(
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const tokenRef = useRef<HTMLDivElement>(null);
 
-    // Track window size for responsive adjustments
     useEffect(() => {
       const handleResize = () => {
         setWindowWidth(window.innerWidth);
@@ -91,7 +86,6 @@ const TokenBlock: React.FC<TokenBlockProps> = memo(
 
     const isHighlighted = selected || highlight || isHovered;
 
-    // Calculate size based on screen width
     const getSize = () => {
       if (windowWidth < 768) {
         return showTokenType ? { width: 22, height: 22, fontSize: 5 } : { width: 18, height: 18, fontSize: 8 };

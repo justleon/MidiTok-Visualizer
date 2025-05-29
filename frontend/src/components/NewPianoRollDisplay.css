@@ -301,12 +301,12 @@
 
 /* Playing key styles */
 .piano-roll-key.playing {
-    background-color: rgba(0, 230, 118, 0.3); /* Light green tint */
+    background-color: rgba(0, 230, 118, 0.3);
 }
 
 .piano-roll-key.black.playing {
-    background-color: rgba(0, 77, 64, 0.9); /* Darker green for black keys */
-    color: #00e676; /* Bright green text */
+    background-color: rgba(0, 77, 64, 0.9);
+    color: #00e676;
 }
 
 .piano-roll-canvas {

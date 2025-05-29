@@ -158,7 +158,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         })}
       </div>
       <div className="keyboard-help">
-        Play with your mouse or computer keyboard (A-L keys correspond to C4-E5)
+        Play with your mouse or computer keyboard (A-L keys correspond to C4-E5). Press CTRL to delete node.
       </div>
     </div>
   );
