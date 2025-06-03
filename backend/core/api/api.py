@@ -1,32 +1,44 @@
 import json
+import io
 import logging.config
+import os
 
-from fastapi import Body, FastAPI, File, HTTPException, UploadFile
+from fastapi import Body, FastAPI, File, HTTPException, UploadFile,Form,Request,status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse,StreamingResponse
 
+
+
+import traceback
 from core.api.logging_middleware import LoggingMiddleware, log_config
-from core.api.model import ConfigModel, MusicInformationData
-from core.service.midi_processing import retrieve_information_from_midi, tokenize_midi_file
+from core.api.model import ConfigModel, MusicInformationData, MIDIConversionRequest
+from core.service.midi_processing import MidiProcessor
+
+
 from core.service.serializer import TokSequenceEncoder
 
-logging.config.dictConfig(log_config)
+from core.service.midi.midi_event import MidiEvent
 
+
+
+logging.config.dictConfig(log_config)
+logger = logging.getLogger(__name__)
+procesor=MidiProcessor()
+midievent=MidiEvent()
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "https://wimu-frontend-ccb0bbc023d3.herokuapp.com",
-    "https://miditok-visualizer-production-frontend.up.railway.app",
-]
+react_api_base_url = os.getenv("REACT_APP_API_BASE_URL", "http://localhost:3000")
+origins = []
+if react_api_base_url:
+    origins.append(react_api_base_url)
 
 
 app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
 )
 
-app.add_middleware(LoggingMiddleware, logger=logging.getLogger(__name__))
+app.add_middleware(LoggingMiddleware, logger=logger)
 
 
 @app.exception_handler(RequestValidationError)
@@ -35,6 +47,17 @@ async def validation_exception_handler(request, exc):
         content={"success": False, "data": None, "error": "Invalid request parameters"}, status_code=422
     )
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.critical(f"Unexpected error on {request.url.path}:\n{traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "data": None,
+            "error": "Internal server error"
+        }
+    )
 
 def save_to_file(data, filename):  # debug function
     with open(filename, "w", encoding="utf-8") as f:
@@ -42,12 +65,13 @@ def save_to_file(data, filename):  # debug function
 
 
 @app.post("/process")
-async def process(config: ConfigModel = Body(...), file: UploadFile = File(...)) -> JSONResponse:
+async def process(config: str = Form(...), file: UploadFile = File(...)) -> JSONResponse:
     try:
         if file.content_type not in ["audio/mid", "audio/midi", "audio/x-mid", "audio/x-midi"]:
             raise HTTPException(status_code=415, detail="Unsupported file type")
+        config_model = ConfigModel(**json.loads(config))
         midi_bytes: bytes = await file.read()
-        tokens, notes = tokenize_midi_file(config, midi_bytes)
+        tokens, notes = procesor.tokenize_midi_file(config_model, midi_bytes)
         serialized_tokens = json.dumps(tokens, cls=TokSequenceEncoder)
         note_id = 1
         serialized_notes = []
@@ -56,7 +80,7 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
             serialized_notes.append(serialized_track)
             note_id += len(track_notes)
 
-        metrics: MusicInformationData = retrieve_information_from_midi(midi_bytes)
+        metrics: MusicInformationData = procesor.retrieve_information_from_midi(midi_bytes)
         return JSONResponse(
             content={
                 "success": True,
@@ -74,3 +98,26 @@ async def process(config: ConfigModel = Body(...), file: UploadFile = File(...))
         )
     except Exception as e:
         return JSONResponse(content={"success": False, "data": None, "error": str(e)}, status_code=500)
+
+
+@app.post("/convert-to-midi/")
+async def convert_to_midi(params: MIDIConversionRequest):
+    try:
+        mid = midievent.create_midi_file_from_events(params)
+        midi_buffer = io.BytesIO()
+        mid.save(file=midi_buffer)
+        midi_buffer.seek(0)
+
+        return StreamingResponse(
+            midi_buffer,
+            media_type="audio/midi",
+            headers={"Content-Disposition": f"attachment; filename={params.output_filename}"}
+        )
+    except Exception as e:
+        print(f"Error during MIDI conversion: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred during MIDI conversion: {e}"
+        )
+
+

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   backend:
     build: 
-      context: ./backend
+      context: backend
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:

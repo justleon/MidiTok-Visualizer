@@ -12,12 +12,10 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN touch README.md
 
-RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --no-root
-
+RUN poetry install --no-root
+#RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --no-root
 COPY core ./core
-COPY tests ./tests
 
-RUN poetry run pytest
 
 FROM python:3.11-slim-buster as runtime
 

@@ -1,0 +1,58 @@
+/* SettingsPanel.css */
+
+.settings-panel {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-panel h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.settings-panel div {
+  margin-bottom: 10px;
+}
+
+.settings-panel label {
+  display: inline-block;
+  min-width: 180px;
+  margin-right: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+.settings-panel input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+  width: 300px;
+}
+
+.settings-panel input:focus {
+  border-color: #4285f4;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-panel label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .settings-panel input {
+    width: 100%;
+    max-width: 200px;
+  }
+}
