@@ -1,0 +1,124 @@
+/* MIDISequencer.css */
+
+.midi-sequencer {
+  font-family: Arial, sans-serif;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.midi-sequencer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.midi-sequencer-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+  text-align: center;
+}
+
+/* Status message styling */
+.status-message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.info-message {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Animation for loading */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Animation for components with framer-motion */
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .midi-sequencer {
+    padding: 20px;
+  }
+}
+
+
+.track-button, .add-track-button{
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+  min-width: 80px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.add-track-button:hover{
+  background-color: #4CAF50;
+  color:white;
+}
+
+.delete-track-button{
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-left: 5px;
+  background-color: rgba(255, 0, 0);
+  font-size: 1rem;
+}

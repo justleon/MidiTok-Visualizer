@@ -1,0 +1,63 @@
+name: Build GitHub Pages
+on:
+  push:
+    branches:
+      - pr-5
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build_mkdocs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install documentation packages
+        run: |
+          pip install mkdocs==1.6.1
+          pip install mkdocs-material==9.6.11
+          pip install mkdocstrings==0.29.1
+          pip install mkdocstrings-python==1.16.10
+          pip install griffe==1.7.2
+          pip install mkdocs-autorefs==1.4.1
+          pip install mkdocs-get-deps==0.2.0
+          pip install mkdocs-exclude
+
+      - name: Build and deploy documentation
+        run: |
+          mkdocs build 
+          mkdocs gh-deploy --config-file mkdocs.yml --force
+
+  deploy_mkdocs:
+    needs: build_mkdocs
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

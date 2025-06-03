@@ -1,0 +1,125 @@
+/* MIDIDeviceManager.css */
+
+.midi-device-manager {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.midi-device-manager h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.midi-device-manager h4 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+.device-container {
+  display: flex;
+  gap: 20px;
+}
+
+.device-section {
+  flex: 1;
+  min-width: 250px;
+}
+
+.device-select {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  transition: border-color 0.3s;
+}
+
+.device-select:focus {
+  border-color: #4285f4;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.record-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+  min-width: 180px;
+}
+
+.record-button.recording {
+  background-color: red;
+  color: white;
+  animation: pulse 1s infinite;
+}
+
+.record-button.not-recording {
+  background-color: darkred;
+  color: white;
+}
+
+.record-button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.record-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+}
+
+.play-device-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.play-device-button:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.play-device-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .device-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .device-section {
+    min-width: 100%;
+  }
+}

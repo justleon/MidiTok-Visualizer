@@ -1,0 +1,31 @@
+name: Frontend CI
+on:
+  push:
+    branches:
+      - pr-5
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21'
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Build the frontend
+        run: cd frontend && CI=false npm run build
+
+      - name: Run tests with npm
+        run: cd frontend && npm run test
+
+
+

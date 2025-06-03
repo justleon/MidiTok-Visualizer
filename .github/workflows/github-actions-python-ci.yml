@@ -1,0 +1,43 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - pr-5
+    paths:
+      - 'backend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.9'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project false
+          poetry config virtualenvs.path "$HOME/.cache/pypoetry/virtualenvs"
+
+      - name: Install dependencies
+        run: |
+          cd backend && poetry install && poetry run pip install setuptools
+         
+
+      - name: Run tests with unittest
+        run: |
+          cd backend
+          export PYTHONPATH=$(pwd)
+          poetry run pytest

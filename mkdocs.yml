@@ -1,0 +1,58 @@
+site_name: MidiTok Visualizer
+theme:
+  name: readthedocs
+  navigation_depth: 4
+  collapse_navigation: false
+  titles_only: false
+  sticky_navigation: true
+extra_css:
+  - css/extra.css
+plugins:
+  - exclude:
+      glob:
+        - Design documentation/*
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_category_heading: true
+            heading_level: 2
+            group_by_category: true
+            members_order: source
+            show_submodules: false
+            filters:
+              - "!^_(?!_init_|_)[^_]"
+            inherited_members: true
+
+            docstring_section_style: table
+            line_length: 80
+            show_signature_annotations: true
+            docstring_options:
+              ignore_init_summary: false
+            show_source: true
+  - autorefs:
+      link_titles: false
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+  - pymdownx.snippets
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - attr_list
+  - def_list
+  - tables
+  - footnotes
+  - toc:
+      permalink: false

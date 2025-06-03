@@ -1,8 +1,16 @@
 # Ignore general configuration files
 .idea/
 .vscode/
+.venv
+localtest
 .DS_Store
 Thumbs.db
 .pytest_cache/
 local_settings.py
 logs/
+site/
+backend_new/
+node_modules/
+frontend/node_modules/
+package-lock.json
+package.json
