@@ -2,7 +2,7 @@ name: Build GitHub Pages
 on:
   push:
     branches:
-      - pr-5
+      - main
     paths:
       - 'docs/**'
   workflow_dispatch:

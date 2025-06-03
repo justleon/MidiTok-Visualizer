@@ -3,7 +3,7 @@ name: Python CI
 on:
   push:
     branches:
-      - pr-5
+      - main
     paths:
       - 'backend/**'
 
