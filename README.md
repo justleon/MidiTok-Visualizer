@@ -1,6 +1,6 @@
 # MidiTok Visualizer
 
-**[ [paper](https://arxiv.org/abs/2410.20518) ] | [ [ISMIR 2024 LBD page](https://ismir2024program.ismir.net/lbd_455.html) ] | [ [example deployment](https://miditok-visualizer-41e761c046c2.herokuapp.com) ]**
+**[ [paper](https://arxiv.org/abs/2410.20518) ] | [ [ISMIR 2024 LBD page](https://ismir2024program.ismir.net/lbd_455.html) ]
 
 MidiTok Visualizer is a web application which allows to visualize MIDI tokenization techniques in a user-friendly way. It mostly includes the tokenizations from [MidiTok](https://github.com/Natooz/MidiTok). It aims to aid research and analysis of symbolic music, especially for researchers new to the field of MIDI processing.
 
