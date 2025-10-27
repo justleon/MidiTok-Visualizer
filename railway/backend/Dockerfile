@@ -1,8 +1,10 @@
 FROM python:3.11-buster AS builder
+RUN apt-get update && apt-get install -y libc6
 RUN pip install poetry==1.6.1
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_VIRTUALENVS_CREATE=1
+ENV REACT_APP_API_BASE_URL="https://miditok-visualizer-front-production.up.railway.app"
 WORKDIR /app
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN touch README.md
@@ -13,7 +15,8 @@ RUN poetry run pytest
 
 FROM python:3.11-slim-buster AS runtime
 ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    REACT_APP_API_BASE_URL="https://miditok-visualizer-front-production.up.railway.app"
 COPY --from=builder /app/.venv /app/.venv
 WORKDIR /app
 COPY backend/core ./core

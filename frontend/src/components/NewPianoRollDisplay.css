@@ -1,0 +1,339 @@
+.custom-midi-player {
+    font-family: Arial, sans-serif;
+    width: 100%;
+    margin: 0 auto;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+
+}
+
+@media (min-width: 768px) {
+    .custom-midi-player {
+        max-width: 700px;
+        padding: 20px;
+    }
+}
+
+.player-header {
+    margin-bottom: 15px;
+}
+
+.player-header h3 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    word-break: break-all;
+}
+
+@media (min-width: 768px) {
+    .player-header h3 {
+        font-size: 1.2rem;
+    }
+}
+
+.player-controls {
+    margin-bottom: 20px;
+}
+
+.time-display {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.progress-container {
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #4285f4;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.progress-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: #4285f4;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    background-color: #4285f4;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s, transform 0.1s;
+    min-width: 80px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.control-buttons button:hover:not(:disabled) {
+    background-color: #3367d6;
+}
+
+.control-buttons button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.control-buttons button:disabled {
+    background-color: #b7b7b7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Auto-scroll button styles */
+.auto-scroll-button {
+    background-color: #4caf50;
+}
+
+.auto-scroll-button.active {
+    background-color: #4caf50;
+}
+
+.auto-scroll-button:not(.active) {
+    background-color: #757575;
+}
+
+.player-settings {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e8e8e8;
+    border-radius: 8px;
+}
+
+.setting-group {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.setting-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    font-weight: bold;
+    color: #333;
+}
+
+.volume-slider-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    padding: 0 10px;
+    position: relative;
+}
+
+.volume-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: #4285f4;
+}
+
+.volume-level {
+    color: #555;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    min-width: 45px;
+    text-align: right;
+}
+
+.volume-slider {
+    flex-grow: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, #4285f4 0%, #4285f4 50%, #ddd 50%, #ddd 100%);
+    border-radius: 3px;
+    outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: 2px solid #4285f4;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #4285f4;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.track-info {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.track-info h4 {
+    margin: 0 0 10px;
+    font-size: 1rem;
+}
+
+.tracks-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tracks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tracks-table th, .tracks-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tracks-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tracks-table td {
+    word-break: break-word;
+}
+
+@media (max-width: 480px) {
+    .tracks-table {
+        font-size: 0.8rem;
+    }
+
+    .tracks-table th, .tracks-table td {
+        padding: 6px 4px;
+    }
+}
+
+.midi-loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.piano-roll-container {
+    position: relative;
+    max-width: 100%;
+}
+
+.piano-roll-scrollable {
+    display: flex;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.piano-roll-key-column {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: white;
+    border-right: 2px solid black;
+}
+
+.piano-roll-key {
+    position: absolute;
+    border: 2px solid black;
+    border-radius: 5px 0 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.piano-roll-key.white {
+    background-color: white;
+    color: black;
+}
+
+.piano-roll-key.black {
+    background-color: #0f0f26;
+    color: white;
+}
+
+/* Playing key styles */
+.piano-roll-key.playing {
+    background-color: rgba(0, 230, 118, 0.3);
+}
+
+.piano-roll-key.black.playing {
+    background-color: rgba(0, 77, 64, 0.9);
+    color: #00e676;
+}
+
+.piano-roll-canvas {
+    background-color: #f8f8f8;
+}
+
+.piano-roll-bottom-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 20px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: white;
+}
+
+.piano-roll-bottom-scroll-placeholder {
+    height: 1px;
+}
+
+.piano-roll-playline {
+    border-left: 3px solid #00c853;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    pointer-events: none;
+    z-index: 12;
+    box-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+    transition: left 0.1s linear;
+}

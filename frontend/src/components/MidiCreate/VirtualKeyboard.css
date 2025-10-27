@@ -1,0 +1,89 @@
+/* VirtualKeyboard.css */
+
+.virtual-keyboard {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.virtual-keyboard h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.keyboard-container {
+  display: flex;
+  position: relative;
+  height: 120px;
+  border: 1px solid #ddd;
+  border-radius: 0 0 5px 5px;
+  overflow: hidden;
+}
+
+.white-key {
+  flex: 1;
+  height: 100%;
+  background-color: white;
+  border: 1px solid #999;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+  transition: background-color 0.1s;
+}
+
+.white-key:hover {
+  background-color: #f0f0f0;
+}
+
+.white-key.active {
+  background-color: #88f;
+}
+
+.black-key {
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  background-color: black;
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 0 0 2px 2px;
+  transition: background-color 0.1s;
+}
+
+.black-key:hover {
+  background-color: #333;
+}
+
+.black-key.active {
+  background-color: #88f;
+}
+
+.key-label {
+  position: absolute;
+  bottom: 5px;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+}
+
+.keyboard-help {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}

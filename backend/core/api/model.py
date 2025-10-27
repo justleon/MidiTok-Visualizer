@@ -1,8 +1,8 @@
 import json
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal, Optional, List,Union
 
-from pydantic import BaseModel, Field, NonNegativeFloat, NonNegativeInt, PositiveInt, StrictBool, model_validator
+from pydantic import BaseModel, Field, NonNegativeFloat, NonNegativeInt, PositiveInt, StrictBool, model_validator, RootModel
 from typing_extensions import Annotated
 
 
@@ -21,7 +21,7 @@ class ConfigModel(
     use_time_signatures: StrictBool
     use_sustain_pedals: StrictBool
     use_pitch_bends: StrictBool
-    nb_tempos: NonNegativeInt
+    num_tempos: NonNegativeInt
     tempo_range: Annotated[list[NonNegativeInt], Field(min_length=2, max_length=2)]
     log_tempos: StrictBool
     delete_equal_successive_tempo_changes: StrictBool
@@ -32,11 +32,15 @@ class ConfigModel(
     programs: Optional[Annotated[list[int], Field(min_length=2, max_length=2)]]
     one_token_stream_for_programs: Optional[StrictBool]
     program_changes: Optional[StrictBool]
-    # added for pertok
+    # added for PerTok
     use_microtiming: StrictBool
     ticks_per_quarter: Annotated[int, Field(ge=24, le=960)]
     max_microtiming_shift: Annotated[float, Field(ge=0, le=1)]
     num_microtiming_bins: Annotated[int, Field(ge=1, le=64)]
+    # added for MMM
+    base_tokenizer: Literal[
+        'MIDILike', 'TSD', 'REMI'
+    ] | None
 
     @model_validator(mode="before")
     @classmethod
@@ -109,3 +113,29 @@ class Note:
     start: int
     end: int
     velocity: int
+
+class NoteEvent(BaseModel):
+    event_type: Literal["note"] = "note"
+    track: int = Field(0, ge=0, description="Track number (0-indexed).")
+    time: int = Field(0, ge=0, description="Absolute start time of the note in ticks from the beginning.")
+    duration: int = Field(1, ge=1, description="Duration of the note in ticks.")
+    pitch: int = Field(60, ge=0, le=127, description="MIDI note number (0-127). C4 is 60.")
+    velocity: int = Field(64, ge=0, le=127, description="MIDI note velocity (0-127).")
+    channel: int = Field(0, ge=0, le=15, description="MIDI channel (0-15).")
+
+
+class TempoEvent(BaseModel):
+    event_type: Literal["tempo"] = "tempo"
+    track: int = Field(0, ge=0, description="Track number (0-indexed).")
+    time: int = Field(0, ge=0, description="Absolute time of the tempo change in ticks.")
+    bpm: float = Field(120.0, gt=0, description="Beats per minute.")
+
+class MIDIEvent(RootModel[Union[NoteEvent, TempoEvent]]):
+    pass
+
+class MIDIConversionRequest(BaseModel):
+    events: List[MIDIEvent]
+    ticks_per_beat: int = Field(480, ge=1, description="Ticks per beat for the MIDI file.")
+    output_filename: str = Field("output.mid", description="Name of the output MIDI file.")
+    start_delay_ms: int = Field(300, ge=0, description="Delay in milliseconds before starting playback.")
+

@@ -1,34 +1,227 @@
 .token-info-block {
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  width: 140px;
-  height: 200px;
-  border: 2px solid black;
-  border-radius: 5px;
+  border: 1px solid #999;
+  border-radius: 4px;
   margin: 5px;
   position: sticky;
   top: 0;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 8px;
+  text-align: left;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  z-index: 30;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background-color: white;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+.token-info-block.has-token {
+  border-width: 2px;
+  border-color: #555;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+}
+
+.token-info-header {
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
   text-align: center;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  max-width: 120px; 
-  white-space: normal; 
-  overflow-wrap: break-word; 
-  padding: 8px; 
-  border-radius: 5px; 
-  transition: opacity 0.1s ease; 
 }
 
 .token-info-content {
-  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   width: 100%;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .token-info-placeholder {
-  font-size: 14px;
-  opacity: 0.8;
+  font-size: 12px;
+  opacity: 0.7;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #555;
+  white-space: nowrap;
+  margin-right: 5px;
+}
+
+.info-value {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: right;
+  max-width: 70%;
+}
+
+.token-heading {
+  font-size: 10px;
+  color: #666;
+  background-color: rgba(255,255,255,0.7);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+@media (max-width: 1200px) {
+  .token-info-block {
+    width: 130px;
+    max-height: 180px;
+  }
+
+  .token-info-content {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 992px) {
+  .token-info-block {
+    width: 120px;
+    max-height: 160px;
+    padding: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .token-info-block {
+    width: 100%;
+    max-height: none;
+    padding: 8px;
+    margin: 5px 0;
+    position: relative;
+    top: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+  }
+
+  .token-info-content {
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  .info-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 2px 0;
+  }
+
+  .info-value {
+    max-width: 65%;
+    text-align: right;
+  }
+
+  .token-info-header {
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+
+  .token-info-placeholder {
+    font-size: 12px;
+    padding: 15px 0;
+  }
+
+
+  .left-column,
+  .right-column {
+    padding: 10px;
+    overflow-x: auto;
+    overflow-y: visible;
+    max-height: none;
+  }
+
+  .data-display-container,
+  .token-list-container {
+    pointer-events: auto !important;
+  }
+
+
+  .token-info-content,
+  .info-row,
+  .info-label,
+  .info-value {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .token-info-block {
+    width: 100%;
+    margin: 5px 0 10px 0;
+    border-width: 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+  }
+
+  .token-info-header {
+    font-size: 13px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    background-color: #f5f5f5;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .token-info-content,
+  .token-info-placeholder {
+    font-size: 11px;
+  }
+
+  .info-label {
+    color: #333;
+    margin-right: 8px;
+  }
+
+  .token-info-block.has-token {
+    border-color: #0066cc;
+    background-color: #f0f7ff;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+    animation: pulse-info 2s infinite;
+  }
+
+  @keyframes pulse-info {
+    0% {
+      box-shadow: 0 0 0 0 rgba(0, 102, 204, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(0, 102, 204, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 102, 204, 0);
+    }
+  }
+}
+
+.token-display-container .selected,
+.token-display-container .highlighted,
+.selected-token-info,
+.hovered-token-info {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+  z-index: 30 !important;
 }

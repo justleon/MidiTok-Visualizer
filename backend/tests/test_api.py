@@ -11,7 +11,7 @@ client = TestClient(app)
 def event_loop():
     import asyncio
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 

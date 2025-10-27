@@ -6,7 +6,7 @@ MidiTok Visualizer is a web application which allows to visualize MIDI tokenizat
 
 MidiTok Visualizer has been published at the Late Breaking Demos session at ISMIR 2024.
 
-![Screenshot of app](img/miditok_visualizer_small.png)
+![Screenshot of app](docs/img/miditok_visualizer_small.png)
 
 ## Key Functionalities
 
@@ -62,8 +62,8 @@ docker run frontend -p 3000:3000
 Basic run:
 
 ```sh
-cd backend
-poetry shell
+cd backend_old
+poetry env activate
 poetry install
 python -m core.main
 ```
@@ -77,9 +77,9 @@ poetry run python -m core.main
 Using Docker:
 
 ```sh
-cd backend
-DOCKER_BUILDKIT=1 docker build --target=runtime . -t backend
-docker run backend -p 8000:8000
+cd backend_old
+DOCKER_BUILDKIT=1 docker build --target=runtime . -t backend_old
+docker run backend_old -p 8000:8000
 ```
 
 ## Testing
@@ -99,7 +99,7 @@ npm run test
 Unit tests written with `pytest` can be ran with:
 
 ```sh
-poetry shell
+poetry env activate
 poetry install
 pytest
 ```
@@ -141,7 +141,7 @@ We gladly welcome PRs with enhancements, features and improvements!
 We use pre-commit before commiting any changes:
 
 ```sh
-cd backend
+cd backend_old
 pre-commit run --all-files
 ```
 
